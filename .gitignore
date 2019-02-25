@@ -91,3 +91,12 @@ ENV/
 
 # SQLite3
 db.sqlite3
+<<<<<<< HEAD
+
+# IDE
+.vscode
+=======
+# iDE
+.vscode
+
+>>>>>>> upgrade django 1.0 to django 2.1
