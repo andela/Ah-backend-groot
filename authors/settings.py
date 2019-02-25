@@ -80,10 +80,14 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+   'default': {
+       'ENGINE': 'django.db.backends.postgresql_psycopg2',
+       'NAME': os.environ.get('DB_NAME', 'groot-db'),
+       'USER': os.environ.get('DB_USER', 'postgres'),
+       'PASSWORD': os.environ.get('PASSWORD', 'memine'),
+       'HOST': os.environ.get('HOST', 'localhost'),
+       'PORT': os.environ.get('PORT', '5432'),
+   }
 }
 
 # Password validation
