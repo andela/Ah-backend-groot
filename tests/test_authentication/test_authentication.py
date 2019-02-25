@@ -1,4 +1,3 @@
-from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from authors.apps.authentication.models import User
@@ -52,5 +51,5 @@ class Authentication(APITestCase):
                          "akrammukasa"}}
         response = self.client.post('/api/users/login/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("A user with this email and password was not found.", 
+        self.assertIn("A user with this email and password was not found.",
                       str(response.data))
