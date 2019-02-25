@@ -1,6 +1,5 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
-import re
 
 
 class TestValidation(APITestCase):
@@ -13,7 +12,7 @@ class TestValidation(APITestCase):
                 "password": "A1234567a"
             }
         }
-        self.user_one_short_username = {
+        self.short_username = {
             "user": {
                 "username": "m",
                 "email": "micheal@gmail.com",
@@ -56,16 +55,9 @@ class TestValidation(APITestCase):
             }
         }
 
-    def test_signing_up_without_data(self):
-        response = self.client.post('/api/users/', data={}, format="json")
-        check_string = "All fields are required"
-        self.assertEqual(
-            response.data["errors"]["input fields"],
-            re.sub(' +', ' ', check_string))
-
     def test_short_username(self):
         response = self.client.post('/api/users/',
-                                    self.user_one_short_username,
+                                    self.short_username,
                                     format='json')
         data = response.data
         self.assertEqual(

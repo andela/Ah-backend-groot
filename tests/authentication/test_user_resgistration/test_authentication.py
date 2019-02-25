@@ -16,7 +16,7 @@ class Authentication(APITestCase):
         data = {"user": {
                 "username": "akram",
                 "email": "akram@gmail.com",
-                "password": "akrammukasA13"}
+                "password": "Akrammukasa12"}
                 }
         response = self.client.post('/api/users/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -56,24 +56,22 @@ class Authentication(APITestCase):
                 "password": "akrammukasa"}}
         response = self.client.post('/api/users/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('Please enter a valid email address',
-                      response.data["errors"]["Email"])
+        self.assertIn("Please enter a valid email address", str(response.data))
 
     def test_login(self):
         data = {"user": {
-                "username": "akram",
-                "email": "akram@gmail.com",
+                "username": "akram6",
+                "email": "akram6@gmail.com",
                 "password": "aKrammukasa1234"}
                 }
         response = self.client.post('/api/users/', data, format='json')
-
-        login_data = {"user": {"email": "akram@gmail.com", "password":
-                               "aKrammukasa1234"}}
         self.client.post('/api/users/verify/?token=' + response.data['token'])
-        response = self.client.post(
+        login_data = {"user": {"email": "akram6@gmail.com", "password":
+                               "aKrammukasa1234"}}
+        login_response = self.client.post(
             '/api/users/login/', login_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(User.objects.get().email, "akram@gmail.com")
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(User.objects.get().email, "akram6@gmail.com")
 
     def test_login_with_non_existing_user(self):
         data = {"user": {"email": "akram@gmail.com", "password":

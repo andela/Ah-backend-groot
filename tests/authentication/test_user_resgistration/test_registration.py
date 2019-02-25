@@ -109,7 +109,6 @@ class TestRegistration(APITestCase):
         Test when no authorization header in the request
         """
         client = APIClient()
-        # client.credentials(HTTP_AUTHORIZATION= ' ' + 'token')
         response = client.get("/api/user/", format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 

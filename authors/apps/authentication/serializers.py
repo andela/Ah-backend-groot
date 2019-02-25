@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail
 from rest_framework import serializers
 from .models import User
 import re
@@ -104,10 +106,15 @@ class UserSerializer(serializers.ModelSerializer):
         min_length=8,
         write_only=True
     )
+    password2 = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True
+    )
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'password', 'token')
+        fields = ('email', 'username', 'password', 'password2', 'token')
         read_only_fields = ('token',)
 
         # The `read_only_fields` option is an alternative for explicitly
@@ -144,3 +151,33 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    """
+        Handles serialization of User to reset password
+    """
+    email = serializers.EmailField(allow_blank=False)
+
+    def validate_email(self, data):
+        email = data
+        if email is None:
+            raise serializers.ValidationError(
+                'Please an email is needed, thank you'
+            )
+        user = get_object_or_404(User, email=email)
+        if email is None:
+            raise serializers.ValidationError(
+                'Please enter a valid email, thank you'
+            )
+        recipient = user.email
+        subject = "Authors Haven Application. Reset your password"
+        token = user.token
+        url = "http://127.0.0.1:8000/api/password-reset/"
+        body = " Click on this link to reset \
+             your password {}{}/".format(url, token)
+        send_mail(subject, body, 'from', [
+                  recipient], fail_silently=False)
+        return {
+            'email': user,
+        }
