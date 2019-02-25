@@ -6,7 +6,7 @@ from authors.apps.authentication.models import User
 class Authentication(APITestCase):
 
     def test_for_new_user(self):
-        # url = reverse('signup')
+
         data = {"user": {"username": "akram",
                          "email": "akram@gmail.com", "password":
                          "akrammukasa"}}
@@ -34,12 +34,12 @@ class Authentication(APITestCase):
         self.assertIn("This field may not be blank.", str(response.data))
 
     def test_login(self):
-        # url = reverse('signup')
+
         data = {"user": {"username": "akram",
                          "email": "akram@gmail.com", "password":
                          "akrammukasa"}}
         response = self.client.post('/api/users/', data, format='json')
-        # url = reverse('login')
+
         data = {"user": {"email": "akram@gmail.com", "password":
                 "akrammukasa"}}
         response = self.client.post('/api/users/login/', data, format='json')
