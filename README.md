@@ -1,5 +1,8 @@
+
+
 Authors Haven - A Social platform for the creative at heart.
 =======
+[![Build Status](https://travis-ci.org/andela/Ah-backend-groot.svg?branch=ch-integrate-travis-164069301)](https://travis-ci.org/andela/Ah-backend-groot)
 
 ## Vision
 Create a community of like minded authors to foster inspiration and innovation
@@ -390,7 +393,5 @@ No additional parameters required
 ### Get Tags
 
 `GET /api/tags`
-
-
 
 

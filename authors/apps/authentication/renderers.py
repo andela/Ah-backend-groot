@@ -1,5 +1,4 @@
 import json
-
 from rest_framework.renderers import JSONRenderer
 
 
@@ -17,7 +16,6 @@ class UserJSONRenderer(JSONRenderer):
             # As mentioned about, we will let the default JSONRenderer handle
             # rendering errors.
             return super(UserJSONRenderer, self).render(data)
-
 
         # Finally, we can render our data under the "user" namespace.
         return json.dumps({
