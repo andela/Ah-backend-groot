@@ -1,3 +1,7 @@
+import jwt
+from datetime import (datetime, timedelta)
+from decouple import config
+
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
@@ -78,7 +82,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
 
     # More fields required by Django when specifying a custom user model.
-
     # The `USERNAME_FIELD` property tells us which field we will use to log in.
     # In this case, we want that to be the email field.
     USERNAME_FIELD = 'email'
@@ -112,3 +115,28 @@ class User(AbstractBaseUser, PermissionsMixin):
         the user's real name, we return their username instead.
         """
         return self.username
+
+    @property
+    def token(self):
+        """
+        Allows us to get a user's token by calling `user.token` instead of
+        `user.generate_jwt_token().
+
+        The `@property` decorator above makes this possible. `token` is called
+        a "dynamic property".
+        """
+        return self._generate_jwt_token()
+
+    def _generate_jwt_token(self):
+        """
+        Generates a JSON Web Token that stores this user's ID and has an expiry
+        date set to 21 days into the future.
+        """
+        expiry_date = datetime.now() + timedelta(days=21)
+
+        token = jwt.encode({
+            'id': self.pk,
+            'exp': int(expiry_date.strftime('%s'))
+        }, config('SECRET_KEY'), algorithm='HS256')
+
+        return token.decode('utf-8')

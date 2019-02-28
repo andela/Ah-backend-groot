@@ -10,13 +10,11 @@ psycopg2==2.7.7
 python-decouple==3.1
 djangorestframework==3.8.2
 flake8==3.7.7
+PyJWT==1.7.1
 pylint==2.2.2
 requests==2.21.0
 simplejson==3.16.0
 uritemplate==3.0.0
 django-heroku==0.3.1
-djangorestframework==3.8.2
 gunicorn==19.9.0
 heroku==0.1.4
-PyJWT==1.7.1
-python-dateutil==1.5
