@@ -136,6 +136,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         token = jwt.encode({
             'id': self.pk,
+            'email': self.email,
             'exp': int(expiry_date.strftime('%s'))
         }, config('SECRET_KEY'), algorithm='HS256')
 

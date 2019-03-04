@@ -1,5 +1,6 @@
+from django.conf import settings
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,6 +9,10 @@ from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer
 )
+from . import validation
+import jwt
+from .models import User
+from ..core import utils
 
 
 class RegistrationAPIView(APIView):
@@ -18,6 +23,7 @@ class RegistrationAPIView(APIView):
 
     def post(self, request):
         user = request.data.get('user', {})
+        validation.validate_registration(user)
 
         # The create serializer, validate serializer, save serializer pattern
         # below is common and you will see it a lot throughout this course and
@@ -25,8 +31,8 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(utils.send_mail_user(request, serializer),
+                        status=status.HTTP_201_CREATED)
 
 
 class LoginAPIView(APIView):
@@ -72,3 +78,20 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class VerifyAccount(GenericAPIView):
+    permission_classes = (AllowAny, )
+
+    def post(self, request, format=None):
+        token = request.query_params.get('token')
+        payload = jwt.decode(token, settings.SECRET_KEY)
+        email = payload['email']
+        user = User.objects.filter(email=email)
+        user.update(is_active=True)
+        return Response(
+            {
+                'message': 'Account successfully verified,'
+                'your free to  now login'
+            },
+            status=status.HTTP_200_OK)

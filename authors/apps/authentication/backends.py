@@ -41,14 +41,15 @@ class JWTAuthentication(authentication.BaseAuthentication):
         successful, return the user and token. If not, throw an error.
         """
         try:
-            payload = jwt.decode(token, config('SECRET_KEY'))
-        finally:
+            payload = jwt.decode(token, config('SECRET_KEY'),
+                                 algorithm='HS256')
+        except Exception:
             msg = 'Invalid authentication. Could not decode token.'
             raise exceptions.AuthenticationFailed(msg)
 
         try:
             user = User.objects.get(pk=payload['id'])
-        except User.DoesNotExist:
+        except user.DoesNotExist:
             msg = 'No user matching this token was found.'
             raise exceptions.AuthenticationFailed(msg)
 
