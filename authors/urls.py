@@ -24,6 +24,7 @@ schema_view = get_swagger_view(title='Authors Haven')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('authors.apps.authentication.urls', )),
+    path('api/', include('authors.apps.profiles.urls',)),
     path('swagger/', schema_view),
     path('docs/', coreapi_docs),
     path('', RedirectView.as_view(url='docs/', permanent=False), name='index')

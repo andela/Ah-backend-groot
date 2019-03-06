@@ -9,6 +9,7 @@ exclude =
     manage.py ,
     # No need to check migrations for PEP 8 formats.
     ./authors/apps/authentication/migrations/ ,
+    ./authors/apps/*/migrations/*,
     # exclude the settings file
     ./authors/settings.py ,
     
