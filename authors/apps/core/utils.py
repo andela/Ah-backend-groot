@@ -2,6 +2,71 @@ from django.conf import settings
 from ..authentication.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
+import re
+from rest_framework import serializers
+
+
+def validate_registration(data):
+    username = data.get('username', None)
+    email = data.get('email', None)
+    password = data.get('password', None)
+
+    if not (username or email or password):
+        raise serializers.ValidationError(
+            {
+                'input fields':
+                'All fields are required'
+            }
+        )
+
+    if not username:
+        raise serializers.ValidationError(
+            {
+                'input fields':
+                'Please input a username'
+            }
+        )
+    if len(username) < 4:
+        raise serializers.ValidationError(
+            {
+                'username':
+                'Please the username should be at'
+                'least 4 characters'
+            }
+        )
+
+    if not re.match(r"^[A-Za-z]+[\d\w_]+", username):
+        raise serializers.ValidationError(
+
+            {
+                'username':
+                'Username should start with letters'
+            }
+        )
+
+    if not re.search(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
+        raise serializers.ValidationError(
+            {
+                'Email':
+                'Please enter a valid email address'
+
+            }
+        )
+
+    valid_password(password)
+    return{"username": username, "email": email, "password": password}
+
+
+def valid_password(password):
+    pass
+    long_password = (len(password) >= 8)
+    atleast_number = re.search("[0-9]", password)
+    Capital_letters = re.search("[A-Z]", password)
+
+    if (not long_password or not atleast_number or not Capital_letters):
+        raise serializers.ValidationError(
+            {'password': 'Password should contain at'
+             'least 8 characters uppercase, number'})
 
 
 def send_mail_user(request, serializer):
@@ -11,15 +76,14 @@ def send_mail_user(request, serializer):
     users.update(is_active=False)
     url_param = get_current_site(request).domain
     email = user['email']
-    send_mail(
-        'Email-verification',
-        'Click here to verify your account {}/api/users/verify?token={}'
-        .format(url_param, serializer.data['token']),
-        settings.EMAIL_HOST_USER,
-        [email],
-        fail_silently=False,
-    )
-    info = """You have successfully been registered,please check \
-        your email for confirmation"""
+    send_mail('Email-verification',
+              'Click here to verify your account {}/api/\
+              users/verify?token={}'
+              .format(url_param, serializer.data['token']),
+              settings.EMAIL_HOST_USER,
+              [email],
+              fail_silently=False,)
+    info = "You have successfully been registered,please check\
+             your email for confirmation"
     email_verify = {"Message": info, "token": serializer.data['token']}
     return email_verify

@@ -1,7 +1,7 @@
 Authors Haven - A Social platform for the creative at heart.
 =======
-[![Build Status](https://travis-ci.org/andela/Ah-backend-groot.svg?branch=ch-integrate-travis-164069301)](https://travis-ci.org/andela/Ah-backend-groot)
-[![Coverage Status](https://coveralls.io/repos/github/andela/Ah-backend-groot/badge.svg?branch=ch-integrate-coveralls-code-coverage-164069304)](https://coveralls.io/github/andela/Ah-backend-groot?branch=ch-integrate-coveralls-code-coverage-164069304)
+[![Build Status](https://travis-ci.org/andela/Ah-backend-groot.svg?branch=develop)](https://travis-ci.org/andela/Ah-backend-groot)
+[![Coverage Status](https://coveralls.io/repos/github/andela/Ah-backend-groot/badge.svg?branch=develop)](https://coveralls.io/github/andela/Ah-backend-groot?branch=develop)
 [![Maintainability](https://api.codeclimate.com/v1/badges/52c453feffc0e3fc641c/maintainability)](https://codeclimate.com/github/andela/Ah-backend-groot/maintainability)
 
 ## Vision

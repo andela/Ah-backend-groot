@@ -1,18 +1,20 @@
 from django.conf import settings
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView
+from rest_framework.generics import (
+    RetrieveUpdateAPIView,
+    GenericAPIView,
+    UpdateAPIView)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .renderers import UserJSONRenderer
 from .serializers import (
-    LoginSerializer, RegistrationSerializer, UserSerializer
+    LoginSerializer, RegistrationSerializer, UserSerializer,
+    ResetPasswordSerializer
 )
-from . import validation
+from ..core import utils
 import jwt
 from .models import User
-from ..core import utils
 
 
 class RegistrationAPIView(APIView):
@@ -23,7 +25,7 @@ class RegistrationAPIView(APIView):
 
     def post(self, request):
         user = request.data.get('user', {})
-        validation.validate_registration(user)
+        utils.validate_registration(user)
 
         # The create serializer, validate serializer, save serializer pattern
         # below is common and you will see it a lot throughout this course and
@@ -95,3 +97,59 @@ class VerifyAccount(GenericAPIView):
                 'your free to  now login'
             },
             status=status.HTTP_200_OK)
+
+
+class ResetPasswordView(RetrieveUpdateAPIView):
+    """
+        Allows user to rrecieve  a reset passowrd link with a token on
+        an email
+    """
+    permission_classes = (AllowAny,)
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = ResetPasswordSerializer
+
+    def post(self, request):
+        serializer_data = request.data.get("user", {})
+        serializer = self.serializer_class(data=serializer_data)
+        serializer.is_valid(raise_exception=True)
+        data = {
+            "Message": "Please check your email a link has been sent to you"
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, token, *args, **kwargs):
+        """
+        This allows one to retrive the token from the end point
+        after it has sent from the user mail
+        """
+        msg = {'token': token}
+        return Response(msg, status=status.HTTP_200_OK)
+
+
+class ChangePasswordView(UpdateAPIView):
+    """
+        Change password of the user endpoint
+    """
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = UserSerializer
+
+    def update(self, request, *args, **kwargs):
+        serializer_data = request.data.get('user', {})
+        """
+        This method gets user data and passes
+        the token of the user
+        """
+        password = request.data.get('user')['password']
+
+        password2 = request.data.get('user')['confirm_password']
+        if password != password2:
+            return Response({"message": "Password don't Match"})
+
+        serializer = self.serializer_class(
+            request.user, data=serializer_data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        msg = {'Message': 'Your password has been succesfully updated'}
+        return Response(msg, status=status.HTTP_200_OK)
