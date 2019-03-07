@@ -1,6 +1,7 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from authors.apps.authentication.models import User
+import re
 
 
 class Authentication(APITestCase):
@@ -15,7 +16,7 @@ class Authentication(APITestCase):
         data = {"user": {
                 "username": "akram",
                 "email": "akram@gmail.com",
-                "password": "akrammukasa"}
+                "password": "akrammukasA13"}
                 }
         response = self.client.post('/api/users/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -40,10 +41,10 @@ class Authentication(APITestCase):
         Method for testing if there is a missing username during registration.
         """
         data = {"user": {"username": "", "email": "akram@gmail.com",
-                "password": "akrammukasa"}}
+                         "password": "akrammukasa"}}
         response = self.client.post('/api/users/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("This field may not be blank.", str(response.data))
+        self.assertIn("Please input a username", str(response.data))
 
     def test_for_missing_email(self):
         """
@@ -55,26 +56,70 @@ class Authentication(APITestCase):
                 "password": "akrammukasa"}}
         response = self.client.post('/api/users/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("This field may not be blank.", str(response.data))
+        self.assertIn('Please enter a valid email address',
+                      response.data["errors"]["Email"])
 
     def test_login(self):
         data = {"user": {
                 "username": "akram",
                 "email": "akram@gmail.com",
-                "password": "akrammukasa"}
+                "password": "aKrammukasa1234"}
                 }
         response = self.client.post('/api/users/', data, format='json')
 
-        data = {"user": {"email": "akram@gmail.com", "password":
-                "akrammukasa"}}
-        response = self.client.post('/api/users/login/', data, format='json')
+        login_data = {"user": {"email": "akram@gmail.com", "password":
+                               "aKrammukasa1234"}}
+        self.client.post('/api/users/verify/?token=' + response.data['token'])
+        response = self.client.post(
+            '/api/users/login/', login_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(User.objects.get().email, "akram@gmail.com")
 
     def test_login_with_non_existing_user(self):
         data = {"user": {"email": "akram@gmail.com", "password":
-                "akrammukasa"}}
+                         "akrammukasa"}}
         response = self.client.post('/api/users/login/', data, format='json')
+        feedback = "Please signup and check for an activation link in your email \
+             to activate this account"
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("A user with this email and password was not found.",
-                      str(response.data))
+        self.assertIn(re.sub(' +', ' ', feedback),
+                      response.data["errors"]["error"][0])
+
+    def test_retrieve_user_details(self):
+        data = {"user": {
+                "username": "akram",
+                "email": "akram@gmail.com",
+                "password": "aKrammukasa1234"}
+                }
+        response = self.client.post('/api/users/', data, format='json')
+        login_data = {"user": {"email": "akram@gmail.com", "password":
+                               "aKrammukasa1234"}}
+        self.client.post('/api/users/verify/?token=' + response.data['token'])
+
+        login_response = self.client.post('/api/users/login/', login_data,
+                                          format='json')
+        token = login_response.data["token"]
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+        response = self.client.get('/api/user/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_updating_user_details(self):
+        data = {"user": {
+                "username": "akram",
+                "email": "akram@gmail.com",
+                "password": "aKrammukasa1234"}
+                }
+        response = self.client.post('/api/users/', data, format='json')
+        login_data = {"user": {"email": "akram@gmail.com", "password":
+                               "aKrammukasa1234"}}
+
+        self.client.post('/api/users/verify/?token=' + response.data['token'])
+        login_response = self.client.post('/api/users/login/', login_data,
+                                          format='json')
+        token = login_response.data["token"]
+
+        new_data = {"user": {"email": "akram@gmail.com", "password":
+                             "aKrammukasa123456789"}}
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+        response = self.client.put('/api/user/', new_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

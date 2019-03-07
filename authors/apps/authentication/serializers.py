@@ -66,8 +66,10 @@ class LoginSerializer(serializers.Serializer):
         # If no user was found matching this email/password combination then
         # `authenticate` will return `None`. Raise an exception in this case.
         if user is None:
+            response = "Please signup and check for an activation link \
+                 in your email to activate this account"
             raise serializers.ValidationError(
-                'A user with this email and password was not found.'
+                ' '.join(response.split())
             )
 
         # Django provides a flag on our `User` model called `is_active`. The
