@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import User
+import re
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -69,7 +70,7 @@ class LoginSerializer(serializers.Serializer):
             response = "Please signup and check for an activation link \
                  in your email to activate this account"
             raise serializers.ValidationError(
-                ' '.join(response.split())
+                re.sub(' +', ' ', response)
             )
 
         # Django provides a flag on our `User` model called `is_active`. The
