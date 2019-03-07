@@ -76,14 +76,16 @@ def send_mail_user(request, serializer):
     users.update(is_active=False)
     url_param = get_current_site(request).domain
     email = user['email']
+    body = "Click here to verify your account {}/api/users/verify/?token={}"
+
     send_mail('Email-verification',
-              'Click here to verify your account {}/api/\
-              users/verify?token={}'
+              body
               .format(url_param, serializer.data['token']),
               settings.EMAIL_HOST_USER,
               [email],
               fail_silently=False,)
-    info = "You have successfully been registered,please check\
-             your email for confirmation"
-    email_verify = {"Message": info, "token": serializer.data['token']}
+    info = "You have successfully been registered, \
+           please check your email for confirmation"
+    refined_info = re.sub('  +', ' ', info)
+    email_verify = {"Message": refined_info, "token": serializer.data['token']}
     return email_verify
