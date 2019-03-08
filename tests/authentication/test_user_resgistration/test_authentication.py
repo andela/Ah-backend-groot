@@ -16,7 +16,7 @@ class Authentication(APITestCase):
         data = {"user": {
                 "username": "akram",
                 "email": "akram@gmail.com",
-                "password": "Akrammukasa12"}
+                "password": "akrammukasA13"}
                 }
         response = self.client.post('/api/users/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
