@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'authors.apps.authentication',
     'authors.apps.core',
     'authors.apps.profiles',
+    'authors.apps.articles'
 ]
 
 MIDDLEWARE = [
@@ -131,8 +132,7 @@ EMAIL_PORT = os.environ.get('EMAIL_PORT', '')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
-django_heroku.settings(locals())
-
 # Media (images)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+django_heroku.settings(locals())
