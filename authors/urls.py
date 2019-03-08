@@ -27,5 +27,6 @@ urlpatterns = [
     path('api/', include('authors.apps.profiles.urls',)),
     path('swagger/', schema_view),
     path('docs/', coreapi_docs),
-    path('', RedirectView.as_view(url='docs/', permanent=False), name='index')
+    path('', RedirectView.as_view(url='docs/', permanent=False), name='index'),
+    path('api/', include('authors.apps.articles.urls'))
 ]
