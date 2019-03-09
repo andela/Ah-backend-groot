@@ -1,6 +1,8 @@
 from rest_framework.generics import (
     ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView
+    RetrieveUpdateDestroyAPIView,
+    CreateAPIView,
+    DestroyAPIView,
 )
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -124,3 +126,66 @@ class ChoiceView(ListCreateAPIView):
         serializer = ArticleSerializer(obj)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class FavoriteArticle(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Article.objects.select_related('author', 'category')
+    serializer_class = ArticleSerializer
+
+    def get_object(self):
+        return get_object_or_404(
+            self.get_queryset(), slug=self.kwargs.get('slug'))
+
+    def create(self, request, *args, **kwargs):
+        profile = self.request.user.profile
+        article = self.get_object()
+
+        if article.author_id == profile.user_id:
+            return Response(
+                {'message': 'can not favorite own article'},
+                status=status.HTTP_400_BAD_REQUEST)
+        if profile.has_favorited(article):
+            return Response(
+                {'message': 'article can not be favorited again'},
+                status=status.HTTP_400_BAD_REQUEST)
+
+        profile.favorite(article)
+        article.favorited = True
+        article.favorites_count += 1
+        article.save()
+
+        serializer = self.serializer_class(article)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class UnFavoriteArticle(DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Article.objects.select_related('author', 'category')
+    serializer_class = ArticleSerializer
+
+    def get_object(self):
+        return get_object_or_404(
+            self.get_queryset(), slug=self.kwargs.get('slug'))
+
+    def destroy(self, request, *args, **kwargs):
+        profile = self.request.user.profile
+        article = self.get_object()
+
+        if not profile.has_favorited(article):
+            return Response(
+                {'message': 'This article is not in your favorite list'},
+                status=status.HTTP_400_BAD_REQUEST)
+
+        profile.unfavorite(article)
+        if article.favorites_count > 0:
+            article.favorites_count -= 1
+            if article.favorites_count == 0:
+                article.favorited = False
+
+        article.save()
+
+        serializer = self.serializer_class(article)
+
+        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)

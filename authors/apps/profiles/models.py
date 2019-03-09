@@ -11,17 +11,26 @@ class Profile(models.Model):
     image = models.ImageField(blank=True)
     following = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
+    favorite_articles = models.ManyToManyField('articles.Article',
+                                               related_name='favorites')
 
     def __str__(self):
         return self.user.username
 
+    @receiver(post_save, sender=User)
+    def create_profile(sender, instance, created, **kwargs):
+        if created:
+            Profile.objects.create(user=instance)
 
-@receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+    @receiver(post_save, sender=User)
+    def save_profile(sender, instance, **kwargs):
+        instance.profile.save()
 
+    def favorite(self, article):
+        self.favorite_articles.add(article)
 
-@receiver(post_save, sender=User)
-def save_profile(sender, instance, **kwargs):
-    instance.profile.save()
+    def unfavorite(self, article):
+        self.favorite_articles.remove(article)
+
+    def has_favorited(self, article):
+        return self.favorite_articles.filter(pk=article.pk).exists()

@@ -3,7 +3,6 @@ from rest_framework.test import APITestCase
 
 
 class TestValidation(APITestCase):
-
     def setUp(self):
         self.user_one = {
             "user": {

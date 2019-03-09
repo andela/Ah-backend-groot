@@ -3,10 +3,11 @@ from django.urls import path
 from .views import (RetrieveUpdateDestroyCategory,
                     CreateListCategory,
                     CreateArticle,
-                    ArticleRetrieveUpdate, ChoiceView)
-from .models import LikeDislike, LikeDislikeManager
-from.models import Article
-
+                    ArticleRetrieveUpdate,
+                    FavoriteArticle,
+                    UnFavoriteArticle,
+                    ChoiceView)
+from .models import LikeDislike, LikeDislikeManager, Article
 
 urlpatterns = [
     path('categories/', CreateListCategory.as_view(), name='create-category'),
@@ -25,4 +26,8 @@ urlpatterns = [
             vote_type=LikeDislike.DISLIKE, model=Article,
             manager=LikeDislikeManager),
         name='article_dislike'),
+    path('article/<str:slug>/favorite/', FavoriteArticle.as_view(),
+         name='favorite-article'),
+    path('article/<str:slug>/unfavorite/', UnFavoriteArticle.as_view(),
+         name='unfavorite-article')
 ]

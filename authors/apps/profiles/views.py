@@ -41,7 +41,7 @@ class RetrieveUpdateProfileView(RetrieveUpdateAPIView):
         self.check_object_permissions(self.request, profile)
         serializer_data = request.data.get('profile', {})
         serializer = self.serializer_class(
-            request.user, data=serializer_data, partial=True
+            request.user.profile, data=serializer_data, partial=True
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()

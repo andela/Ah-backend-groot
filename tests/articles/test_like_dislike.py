@@ -6,7 +6,9 @@ from .test_category import TestCategory
 class TestLikeDislikeArticle(BaseTest, TestCategory):
 
     def test_liking_an_article(self):
-        like_data = self.create_an_article()
+        like_data = self.create_an_article(
+            self.new_article,
+            self.registration_data)
         response = self.client.post('/api/articles/{}/like/'.
                                     format(like_data.data['slug']),
                                     format="json")
@@ -14,7 +16,9 @@ class TestLikeDislikeArticle(BaseTest, TestCategory):
         self.assertEqual(response.data.get('likes'), 1)
 
     def test_unlike_article(self):
-        like_data = self.create_an_article()
+        like_data = self.create_an_article(
+            self.new_article,
+            self.registration_data)
         response = self.client.post('/api/articles/{}/like/'.
                                     format(like_data.data['slug']),
                                     format="json")
@@ -27,7 +31,9 @@ class TestLikeDislikeArticle(BaseTest, TestCategory):
         self.assertEqual(unlike_response.status_code, status.HTTP_201_CREATED)
 
     def test_dislike_article(self):
-        dislike_data = self.create_an_article()
+        dislike_data = self.create_an_article(
+            self.new_article,
+            self.registration_data)
         response = self.client.post('/api/articles/{}/dislike/'.
                                     format(dislike_data.data['slug']),
                                     format="json")
@@ -35,7 +41,9 @@ class TestLikeDislikeArticle(BaseTest, TestCategory):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_undislike_article(self):
-        dislike_data = self.create_an_article()
+        dislike_data = self.create_an_article(
+            self.new_article,
+            self.registration_data)
         response = self.client.post('/api/articles/{}/dislike/'.
                                     format(dislike_data.data['slug']),
                                     format="json")

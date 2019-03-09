@@ -15,10 +15,18 @@ class BaseTest(APITestCase):
                 "password": "Users@12345"
             }
         }
-        self.login_data = {
+        self.another_user_data = {
             "user": {
-                "email": "userstest@gmail.com",
+                "username": "user1",
+                "email": "userstest1@gmail.com",
                 "password": "Users@12345"
+            }
+        }
+        self.new_article_data = {
+            "article": {
+                "title": "believer",
+                "description": "This test was created on womens day of 2019.",
+                "body": "I like to move it move it",
             }
         }
         self.new_article = {
@@ -30,34 +38,29 @@ class BaseTest(APITestCase):
         }
         self.client = APIClient()
 
-    def register_and_login(self):
+    def register_and_login(self, data):
         response = self.client.post('/api/users/',
-                                    {
-                                        "user": {
-                                            "username": "user",
-                                            "email": "userstest@gmail.com",
-                                            "password": "Users@12345"
-                                        }
-                                    }, format='json')
+                                    data,
+                                    format='json')
         self.client.post(
             '/api/users/verify/?token=' + response.data["token"])
+        login_data = {
+            "user": {
+                "email": data['user']['email'],
+                "password": data['user']['password']
+            }
+        }
         login_response = self.client.post('/api/users/login/',
-                                          {
-                                              "user": {
-                                                  "email":
-                                                  "userstest@gmail.com",
-                                                  "password": "Users@12345"
-                                              }
-                                          }, format='json')
+                                          login_data, format='json')
         return login_response
 
-    def create_an_article(self):
+    def create_an_article(self, article, user_data):
         new_category = self.add_category()
-        token = self.register_and_login()
+        token = self.register_and_login(user_data)
         self.client.credentials(
             HTTP_AUTHORIZATION='Bearer ' + token.data['token'])
-        self.new_article['article']['category'] = new_category.data['slug']
+        article['article']['category'] = new_category.data['slug']
         response = self.client.post('/api/articles/',
-                                    self.new_article,
+                                    article,
                                     format='json')
         return response
