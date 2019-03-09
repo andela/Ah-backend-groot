@@ -4,6 +4,11 @@ from .test_category import TestCategory
 
 
 class TestArticle(BaseTest, TestCategory):
+    def test_return_article(self):
+        self.create_an_article()
+        response = self.client.get('/api/articles/')
+        print(response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_successful_creation_of_articles(self):
         article_response = self.create_an_article()

@@ -12,6 +12,8 @@ from .serializers import CategorySerializer, ArticleSerializer
 from authors.apps.articles.renderers import CategoryJSONRenderer
 from .renderers import ArticleJSONRenderer
 from .pagination import ArticlePagination
+from django.contrib.contenttypes.models import ContentType
+from .models import LikeDislike
 
 
 class CreateListCategory(ListCreateAPIView):
@@ -94,3 +96,31 @@ class ArticleRetrieveUpdate(RetrieveUpdateDestroyAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ChoiceView(ListCreateAPIView):
+    """Implements the like and dislike endpoints."""
+    serializer_class = ArticleSerializer
+    model = None
+    vote_type = None
+    manager = None
+
+    def post(self, request, slug):
+        obj = self.model.objects.get(slug=slug)
+        try:
+            likedislike = LikeDislike.objects.get(
+                content_type=ContentType.objects.get_for_model(obj),
+                object_id=obj.id,
+                user=request.user)
+            if likedislike.vote is not self.vote_type:
+                likedislike.vote = self.vote_type
+                likedislike.save(update_fields=['vote'])
+
+            else:
+                likedislike.delete()
+
+        except LikeDislike.DoesNotExist:
+            obj.votes.create(user=request.user, vote=self.vote_type)
+        serializer = ArticleSerializer(obj)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
