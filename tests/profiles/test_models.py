@@ -1,4 +1,4 @@
-from .test_base import BaseTest
+from ..test_base import BaseTest
 from authors.apps.profiles.models import Profile
 
 

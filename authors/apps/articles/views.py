@@ -1,13 +1,19 @@
-from rest_framework import generics
-from rest_framework.permissions import IsAdminUser, AllowAny
-from .models import Category
-from .serializers import CategorySerializer
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView
+)
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
+
+from .models import Category, Article
+from .serializers import CategorySerializer, ArticleSerializer
 from authors.apps.articles.renderers import CategoryJSONRenderer
+from .renderers import ArticleJSONRenderer
 
 
-class CreateListCategory(generics.ListCreateAPIView):
+class CreateListCategory(ListCreateAPIView):
     serializer_class = CategorySerializer
     permission_classes = (AllowAny,)
     renderer_classes = (CategoryJSONRenderer,)
@@ -23,7 +29,7 @@ class CreateListCategory(generics.ListCreateAPIView):
                         headers=headers)
 
 
-class RetrieveUpdateDestroyCategory(generics.RetrieveUpdateDestroyAPIView):
+class RetrieveUpdateDestroyCategory(RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAdminUser,)
     serializer_class = CategorySerializer
     lookup_field = 'slug'
@@ -43,3 +49,45 @@ class RetrieveUpdateDestroyCategory(generics.RetrieveUpdateDestroyAPIView):
         self.perform_destroy(instance)
         return Response({"message": "category deleted"},
                         status=status.HTTP_204_NO_CONTENT)
+
+
+class CreateArticle(ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (ArticleJSONRenderer,)
+    serializer_class = ArticleSerializer
+    queryset = Article.objects.all()
+
+    def create(self, request):
+        article = request.data.get('article', {})
+        serializer = self.get_serializer(data=article)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data,
+                        status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class ArticleRetrieveUpdate(RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    renderer_class = (ArticleJSONRenderer,)
+    queryset = Article.objects.select_related('author', 'category')
+    serializer_class = ArticleSerializer
+    lookup_field = 'slug'
+
+    def get_object(self):
+        return get_object_or_404(
+            self.get_queryset(), slug=self.kwargs.get('slug'))
+
+    def update(self, request, *args, **kwargs):
+        self.serializer_instance = self.get_object()
+        serializer_data = request.data.get('article', {})
+
+        serializer = self.serializer_class(
+            self.serializer_instance, data=serializer_data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
