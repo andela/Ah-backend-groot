@@ -117,3 +117,16 @@ class Rating(models.Model):
 
     class Meta:
         ordering = ["-score"]
+
+
+class Comment(models.Model):
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(
+        'authentication.User',
+        on_delete=models.CASCADE
+    )
+    article = models.ForeignKey(
+        'Article', on_delete=models.CASCADE, to_field="slug", blank=False
+    )
+    body = models.TextField(max_length=500)

@@ -11,14 +11,17 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
 
 from .pagination import ArticlePagination
-from .models import LikeDislike, Category, Article, Bookmark
 from .serializers import (CategorySerializer, ArticleSerializer,
-                          BookmarkSerializer, RatingSerializer)
+                          BookmarkSerializer, RatingSerializer,
+                          CommentSerializer)
 from authors.apps.articles.renderers import (CategoryJSONRenderer,
                                              BookmarkJSONRenderer,
                                              ArticleJSONRenderer)
+from .models import (Category, Article, Comment,
+                     LikeDislike, Bookmark)
 
 
 class CreateListCategory(ListCreateAPIView):
@@ -286,8 +289,64 @@ class RatingsView(ListCreateAPIView):
         """
         data = self.serializer_class.update_data(
             request.data.get("article", {}), slug, request.user)
-
         serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ListCreateComment(ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CommentSerializer
+    lookup_field = 'slug'
+    queryset = Comment.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = Comment.objects.filter(
+            article_id=self.kwargs.get('slug'))
+        serializer = CommentSerializer(queryset, many=True)
+        if queryset.count() == 0:
+            raise serializers.ValidationError("No comments found")
+
+        if queryset.count() == 1:
+            return Response({"Comment": serializer.data})
+
+        return Response(
+            {"Comments": serializer.data,
+             "commentsCount": queryset.count()})
+
+    def create(self, request, *args, **kwargs):
+        comment = request.data.get('comment', {})
+        serializer = self.get_serializer(data=comment)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data,
+                        status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user,
+                        article=Article.objects.get(
+                            slug=self.kwargs.get('slug'))
+                        )
+
+
+class RetrieveUpdateDestroyComment(RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    lookup_field = 'id'
+
+    def get_object(self):
+        return get_object_or_404(
+            self.get_queryset(), id=self.kwargs.get('id'))
+
+    def update(self, request, *args, **kwargs):
+        self.serializer_instance = self.get_object()
+        serializer_data = request.data.get('comment', {})
+
+        serializer = self.serializer_class(
+            self.serializer_instance, data=serializer_data, partial=True
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
