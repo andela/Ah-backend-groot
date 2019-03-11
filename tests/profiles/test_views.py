@@ -1,4 +1,4 @@
-from .test_base import BaseTest
+from ..test_base import BaseTest
 from rest_framework import status
 
 
