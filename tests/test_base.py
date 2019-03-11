@@ -54,6 +54,12 @@ class BaseTest(APITestCase):
                                           login_data, format='json')
         return login_response
 
+    def register_follow_user(self):
+        response = self.client.post('/api/users/',
+                                    self.another_user_data,
+                                    format='json')
+        return response
+
     def create_an_article(self, article, user_data):
         new_category = self.add_category()
         token = self.register_and_login(user_data)
