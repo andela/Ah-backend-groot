@@ -28,12 +28,12 @@ class TestCategory(APITestCase):
     def add_category(self):
         self.client.credentials(
             HTTP_AUTHORIZATION='Bearer ' + self.get_admin_token())
-        self.client.post("/api/categories/",
-                         data=({
-                             "category": {
-                                 "name": "Religion"}}
-                               ),
-                         format='json')
+        return self.client.post("/api/categories/",
+                                data=({
+                                    "category": {
+                                        "name": "Religion"}}
+                                      ),
+                                format='json')
 
     def test_can_get_categories(self):
         self.add_category()

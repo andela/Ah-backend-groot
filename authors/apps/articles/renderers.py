@@ -30,3 +30,22 @@ class CategoryJSONRenderer(JSONRenderer):
             return json.dumps({
                 'categories': data
             })
+
+
+class ArticleJSONRenderer(JSONRenderer):
+    charset = 'utf-8'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        if(type(data) != ReturnList):
+            errors = data.get('errors', None)
+            if errors is not None:
+                return super(ArticleJSONRenderer, self).render(data)
+
+        if type(data) == ReturnDict:
+            return json.dumps({
+                'article': data
+            })
+
+        return json.dumps({
+            'articles': data
+        })
