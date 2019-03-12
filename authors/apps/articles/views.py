@@ -1,21 +1,23 @@
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
-    CreateAPIView,
     DestroyAPIView,
+    CreateAPIView, ListAPIView
 )
-from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
+from rest_framework.permissions import (IsAdminUser, AllowAny,
+                                        IsAuthenticated)
+from django.contrib.contenttypes.models import ContentType
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from .models import Category, Article
-from .serializers import CategorySerializer, ArticleSerializer
-from authors.apps.articles.renderers import CategoryJSONRenderer
-from .renderers import ArticleJSONRenderer
 from .pagination import ArticlePagination
-from django.contrib.contenttypes.models import ContentType
-from .models import LikeDislike
+from .models import LikeDislike, Category, Article, Bookmark
+from .serializers import (CategorySerializer, ArticleSerializer,
+                          BookmarkSerializer)
+from authors.apps.articles.renderers import (CategoryJSONRenderer,
+                                             BookmarkJSONRenderer,
+                                             ArticleJSONRenderer)
 
 
 class CreateListCategory(ListCreateAPIView):
@@ -189,3 +191,56 @@ class UnFavoriteArticle(DestroyAPIView):
         serializer = self.serializer_class(article)
 
         return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+
+
+class BookmarkView(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = BookmarkSerializer
+    renderer_classes = (BookmarkJSONRenderer,)
+    queryset = Bookmark.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        slug = get_object_or_404(Article, slug=self.kwargs['slug'])
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = Bookmark.objects.filter(
+            slug_id=slug.slug, user_id=request.user.id).first()
+        if instance:
+            return Response({"message": "article already bookmarked"},
+                            status=status.HTTP_200_OK)
+
+        self.perform_create(serializer, slug)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer, slug):
+        serializer.save(user=self.request.user, slug=slug)
+
+
+class UnBookmarkView(DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = BookmarkSerializer
+    lookup_field = 'slug'
+    queryset = Bookmark.objects.all()
+
+    def destroy(self, request, *args, **kwargs):
+        instance = Bookmark.objects.filter(
+            user_id=request.user.id, slug_id=self.kwargs['slug'])
+        if not instance:
+            return Response({"message": "bookmark not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        self.perform_destroy(instance)
+        return Response({"message": "deleted"},
+                        status=status.HTTP_204_NO_CONTENT)
+
+
+class ListBookmarksView(ListAPIView):
+    serializer_class = BookmarkSerializer
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (BookmarkJSONRenderer,)
+    queryset = Bookmark.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        bookmarks = self.queryset.filter(
+            user_id=request.user)
+        serializer = self.serializer_class(bookmarks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

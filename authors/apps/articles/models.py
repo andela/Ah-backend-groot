@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from authors.apps.authentication.models import User
+from django.utils import timezone
 
 
 class LikeDislikeManager(models.Manager):
@@ -75,3 +76,11 @@ class Article(models.Model):
         if not self.slug:
             self.slug = get_unique_slug(self, 'title', 'slug')
         return super().save(*args, **kwargs)
+
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, blank=False, on_delete=models.CASCADE)
+    slug = models.ForeignKey(Article, blank=False, on_delete=models.CASCADE,
+                             to_field='slug')
+    bookmarked_at = models.DateTimeField(
+        auto_created=True, auto_now=False, default=timezone.now)

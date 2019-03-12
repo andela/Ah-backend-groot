@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import Category, Article
-from ..profiles.models import Profile
+from .models import Category, Article, Bookmark
 from ..profiles.serializers import ProfileSerializer
+from ..profiles.models import Profile
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -30,6 +30,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'favorited',
+            "favorites_count",
             'author',
             'likes',
             'dislikes'
@@ -52,3 +53,16 @@ class ArticleSerializer(serializers.ModelSerializer):
     # # Gets all the articles dislikes
     def get_dislikes(self, instance):
         return instance.votes.dislikes().count()
+
+
+class BookmarkSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='slug.author.username')
+    slug = serializers.ReadOnlyField(source='slug.slug')
+    image = serializers.ReadOnlyField(source='slug.image')
+    article_title = serializers.ReadOnlyField(source='slug.title')
+    description = serializers.ReadOnlyField(source='slug.title')
+
+    class Meta:
+        model = Bookmark
+        fields = ['author', 'article_title', 'slug',
+                  'description', 'bookmarked_at', 'image']
