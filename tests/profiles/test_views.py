@@ -5,7 +5,7 @@ from rest_framework import status
 class TestProfile(BaseTest):
 
     def test_create_profile(self):
-        response = super().register_and_login()
+        response = super().register_and_login(self.registration_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_profile_does_not_exist(self):
@@ -13,7 +13,7 @@ class TestProfile(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_authenticated_update_profile(self):
-        response = super().register_and_login()
+        response = super().register_and_login(self.registration_data)
         token = response.data["token"]
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
         response = self.client.put("/api/profiles/user/",

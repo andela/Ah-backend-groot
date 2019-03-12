@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('articles', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -23,6 +24,7 @@ class Migration(migrations.Migration):
                 ('image', models.ImageField(blank=True, upload_to='')),
                 ('following', models.BooleanField(default=False)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
+                ('favorite_articles', models.ManyToManyField(related_name='favorites', to='articles.Article')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
