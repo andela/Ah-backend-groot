@@ -53,6 +53,7 @@ class Article(models.Model):
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     favorited = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=False)
     favorites_count = models.IntegerField(default=0)
     image = models.URLField(blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)

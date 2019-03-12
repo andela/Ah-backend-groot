@@ -31,11 +31,12 @@ class ArticleSerializer(serializers.ModelSerializer):
             'updated_at',
             'favorited',
             "favorites_count",
+            'is_published',
             'author',
             'likes',
             'dislikes'
         )
-        read_only_fields = ('id', 'slug', 'author_id')
+        read_only_fields = ('id', 'slug', 'author_id', 'is_published',)
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -46,11 +47,9 @@ class ArticleSerializer(serializers.ModelSerializer):
                                                         read_only=True).data
         return representation
 
-    # Gets all the articles likes
     def get_likes(self, instance):
         return instance.votes.likes().count()
 
-    # # Gets all the articles dislikes
     def get_dislikes(self, instance):
         return instance.votes.dislikes().count()
 

@@ -9,7 +9,6 @@ class TestArticle(BaseTest, TestCategory):
             self.new_article,
             self.registration_data)
         response = self.client.get('/api/articles/')
-        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_successful_creation_of_articles(self):
@@ -105,4 +104,22 @@ class TestArticle(BaseTest, TestCategory):
 
         response_message = "This article is not in your favorite list"
         self.assertEqual(response.data['message'], response_message)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_user_can_publish_article(self):
+        article_1 = self.create_an_article(self.new_article,
+                                           self.registration_data)
+        response = self.client.post("/api/article/{0}/publish/".format(
+            article_1.data['slug']
+        ), format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_user_can_not_publish_article_which_is_not_theirs(self):
+        article_1 = self.create_an_article(self.new_article,
+                                           self.registration_data)
+        token = self.register_and_login(self.another_user_data).data['token']
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+        response = self.client.post("/api/article/{0}/publish/".format(
+            article_1.data['slug']
+        ), format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
