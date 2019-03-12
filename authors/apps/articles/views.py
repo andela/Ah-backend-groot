@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404
 from .pagination import ArticlePagination
 from .models import LikeDislike, Category, Article, Bookmark
 from .serializers import (CategorySerializer, ArticleSerializer,
-                          BookmarkSerializer)
+                          BookmarkSerializer, RatingSerializer)
 from authors.apps.articles.renderers import (CategoryJSONRenderer,
                                              BookmarkJSONRenderer,
                                              ArticleJSONRenderer)
@@ -270,3 +270,25 @@ class PublishArticleUpdate(CreateAPIView):
         article.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class RatingsView(ListCreateAPIView):
+    """
+    implements methods to handle rating articles
+    """
+    serializer_class = RatingSerializer
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (ArticleJSONRenderer,)
+
+    def post(self, request, slug=None):
+        """
+        method to post a rating for an article
+        """
+        data = self.serializer_class.update_data(
+            request.data.get("article", {}), slug, request.user)
+
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
