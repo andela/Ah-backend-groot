@@ -11,6 +11,7 @@ from .models import Category, Article
 from .serializers import CategorySerializer, ArticleSerializer
 from authors.apps.articles.renderers import CategoryJSONRenderer
 from .renderers import ArticleJSONRenderer
+from .pagination import ArticlePagination
 
 
 class CreateListCategory(ListCreateAPIView):
@@ -18,6 +19,7 @@ class CreateListCategory(ListCreateAPIView):
     permission_classes = (AllowAny,)
     renderer_classes = (CategoryJSONRenderer,)
     queryset = Category.objects.all()
+    pagination_class = ArticlePagination
 
     def create(self, request, *args, **kwargs):
         category = request.data.get("category", {})
@@ -56,6 +58,7 @@ class CreateArticle(ListCreateAPIView):
     renderer_classes = (ArticleJSONRenderer,)
     serializer_class = ArticleSerializer
     queryset = Article.objects.all()
+    pagination_class = ArticlePagination
 
     def create(self, request):
         article = request.data.get('article', {})
