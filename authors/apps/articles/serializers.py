@@ -16,6 +16,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ArticleSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
+    likes = serializers.SerializerMethodField()
+    dislikes = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -29,6 +31,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'author',
+            'likes',
+            'dislikes'
         )
         read_only_fields = ('id', 'slug', 'author_id')
 
@@ -40,3 +44,11 @@ class ArticleSerializer(serializers.ModelSerializer):
         representation['category'] = CategorySerializer(instance.category,
                                                         read_only=True).data
         return representation
+
+    # Gets all the articles likes
+    def get_likes(self, instance):
+        return instance.votes.likes().count()
+
+    # # Gets all the articles dislikes
+    def get_dislikes(self, instance):
+        return instance.votes.dislikes().count()
