@@ -54,3 +54,8 @@ class TestCategory(APITestCase):
         self.add_category()
         response = self.client.delete("/api/categories/religion")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_can_view_user_profile(self):
+        self.add_category()
+        response = self.client.get("/api/users/list/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.generics import (
     RetrieveUpdateAPIView,
     GenericAPIView,
+    ListAPIView,
     UpdateAPIView)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -12,6 +13,7 @@ from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer,
     ResetPasswordSerializer
 )
+from ..profiles.serializers import UserListSerializer
 from ..core import utils
 import jwt
 from .models import User
@@ -153,3 +155,10 @@ class ChangePasswordView(UpdateAPIView):
         serializer.save()
         msg = {'Message': 'Your password has been succesfully updated'}
         return Response(msg, status=status.HTTP_200_OK)
+
+
+class ListUserView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = UserListSerializer
+    queryset = User.objects.all()

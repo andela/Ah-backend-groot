@@ -114,16 +114,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'password', 'password2', 'token')
+        fields = ('email', 'username', 'password', 'password2', 'token',)
         read_only_fields = ('token',)
-
-        # The `read_only_fields` option is an alternative for explicitly
-        # specifying the field with `read_only=True` like we did for password
-        # above. The reason we want to use `read_only_fields` here is because
-        # we don't need to specify anything else about the field. For the
-        # password field, we needed to specify the `min_length` and
-        # `max_length` properties too, but that isn't the case for the token
-        # field.
 
     def update(self, instance, validated_data):
         """Performs an update on a User."""
