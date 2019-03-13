@@ -9,7 +9,13 @@ class Profile(models.Model):
     full_name = models.CharField(max_length=255, blank=True)
     bio = models.CharField(max_length=255, blank=True)
     image = models.ImageField(blank=True)
-    following = models.BooleanField(default=False)
+    follows = models.ManyToManyField(
+        'self',
+        related_name='followed_by',
+        symmetrical=False
+    )
+    follower_count = models.IntegerField(default=0)
+    following_count = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     favorite_articles = models.ManyToManyField('articles.Article',
                                                related_name='favorites')
@@ -17,14 +23,20 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
-    @receiver(post_save, sender=User)
-    def create_profile(sender, instance, created, **kwargs):
-        if created:
-            Profile.objects.create(user=instance)
+    def follow(self, profile):
+        self.follows.add(profile)
 
-    @receiver(post_save, sender=User)
-    def save_profile(sender, instance, **kwargs):
-        instance.profile.save()
+    def unfollow(self, profile):
+        self.follows.remove(profile)
+
+    def is_followed_by(self, profile):
+        """
+        This method updates the "following" boolean field
+        depending on if the user retrieving the profile
+        follows the current user or not
+        """
+        self.following = self.followed_by.filter(pk=profile.pk).exists()
+        return self.following
 
     def favorite(self, article):
         self.favorite_articles.add(article)
@@ -34,3 +46,14 @@ class Profile(models.Model):
 
     def has_favorited(self, article):
         return self.favorite_articles.filter(pk=article.pk).exists()
+
+
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_profile(sender, instance, **kwargs):
+    instance.profile.save()
