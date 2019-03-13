@@ -2,7 +2,8 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
     DestroyAPIView,
-    CreateAPIView, ListAPIView
+    CreateAPIView,
+    ListAPIView,
 )
 from rest_framework.permissions import (IsAdminUser, AllowAny,
                                         IsAuthenticated)
@@ -207,7 +208,7 @@ class BookmarkView(CreateAPIView):
             slug_id=slug.slug, user_id=request.user.id).first()
         if instance:
             return Response({"message": "article already bookmarked"},
-                            status=status.HTTP_200_OK)
+                            status=status.HTTP_400_BAD_REQUEST)
 
         self.perform_create(serializer, slug)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -244,3 +245,28 @@ class ListBookmarksView(ListAPIView):
             user_id=request.user)
         serializer = self.serializer_class(bookmarks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PublishArticleUpdate(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Article.objects.select_related('author', 'category')
+    serializer_class = ArticleSerializer
+
+    def get_object(self):
+        return get_object_or_404(
+            self.get_queryset(), slug=self.kwargs.get('slug'))
+
+    def create(self, request, *args, **kwargs):
+        profile = self.request.user.profile
+        article = self.get_object()
+        message = 'can not publish article that does not belong to you'
+
+        if article.author_id != profile.user_id:
+            return Response(
+                {'message': message},
+                status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(article)
+        article.is_published = True
+        article.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
