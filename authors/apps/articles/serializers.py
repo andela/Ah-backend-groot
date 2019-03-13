@@ -37,7 +37,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             'is_published',
             'author',
             'likes',
-            'dislikes'
+            'dislikes',
+            'reading_time'
         )
         read_only_fields = ('id', 'slug', 'author_id', 'is_published',)
         user_rating = serializers.CharField(
