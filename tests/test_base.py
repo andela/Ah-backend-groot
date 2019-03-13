@@ -36,6 +36,10 @@ class BaseTest(APITestCase):
                 "body": "I like to move it move it, I like to move it",
             }
         }
+        self.empty_article = {
+            "article": {
+            }
+        }
         self.client = APIClient()
 
     def register_and_login(self, data):

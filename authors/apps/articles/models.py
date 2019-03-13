@@ -5,6 +5,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from authors.apps.authentication.models import User
 from django.utils import timezone
+from django.db.models import Avg
 
 
 class LikeDislikeManager(models.Manager):
@@ -69,6 +70,7 @@ class Article(models.Model):
         related_name='author_articles'
     )
     votes = GenericRelation(LikeDislike, related_name='articles')
+    user_rates = models.CharField(max_length=10, default=0)
 
     def __str__(self):
         return self.title
@@ -78,6 +80,18 @@ class Article(models.Model):
             self.slug = get_unique_slug(self, 'title', 'slug')
         return super().save(*args, **kwargs)
 
+    @property
+    def average_rating(self):
+        """
+        method to calculate the average rating of the article.
+        """
+        ratings = self.scores.all().aggregate(score=Avg("score"))
+        return float('%.2f' % (ratings["score"] if ratings['score'] else 0))
+
+    class Meta:
+        get_latest_by = 'created_at'
+        ordering = ['-created_at', 'author']
+
 
 class Bookmark(models.Model):
     user = models.ForeignKey(User, blank=False, on_delete=models.CASCADE)
@@ -85,3 +99,21 @@ class Bookmark(models.Model):
                              to_field='slug')
     bookmarked_at = models.DateTimeField(
         auto_created=True, auto_now=False, default=timezone.now)
+
+
+class Rating(models.Model):
+    """
+        Model for rating an article
+    """
+    article = models.ForeignKey(Article, related_name="scores",
+                                on_delete=models.CASCADE)
+    author = models.ForeignKey(
+        'authentication.User',
+        on_delete=models.CASCADE,
+        related_name="scores",
+        null=True)
+    rated_on = models.DateTimeField(auto_now_add=True)
+    score = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta:
+        ordering = ["-score"]
