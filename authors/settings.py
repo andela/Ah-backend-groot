@@ -136,6 +136,18 @@ EMAIL_PORT = os.environ.get('EMAIL_PORT', '')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
+"""reading time configurations"""
+
+"""
+    Measure of words proccesed and reading time in a minute
+"""
+WORD_PER_MINUTE = 200
+
+"""
+    definition of each word is standardized to be five characters long.
+"""
+WORD_LENGTH = 5
+
 # Media (images)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
