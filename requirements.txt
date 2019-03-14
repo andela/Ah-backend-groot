@@ -21,3 +21,4 @@ heroku==0.1.4
 Pillow==5.4.1
 django-coverage-plugin==1.6.0
 PyYAML==4.2b1
+django-filter==2.1.0

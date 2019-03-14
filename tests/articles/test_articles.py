@@ -123,3 +123,13 @@ class TestArticle(BaseTest, TestCategory):
             article_1.data['slug']
         ), format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_can_search_based_on_filters(self):
+        self.create_an_article(self.new_article, self.registration_data)
+        response = self.client.get("/api/articles/?author=user", format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get("/api/articles/?tag=user", format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get("/api/articles/?favorited=user",
+                                   format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
