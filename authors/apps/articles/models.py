@@ -7,6 +7,7 @@ from authors.apps.authentication.models import User
 from django.utils import timezone
 from django.db.models import Avg
 from django.conf import settings
+import math
 
 
 class LikeDislikeManager(models.Manager):
@@ -99,7 +100,7 @@ class Article(models.Model):
         word_count = 0
         for word in self.body:
             word_count += len(word) / settings.WORD_LENGTH
-        result = int(word_count / settings.WORD_PER_MINUTE)
+        result = math.ceil(word_count / settings.WORD_PER_MINUTE)
         return str(result) + " min read"
 
     class Meta:
