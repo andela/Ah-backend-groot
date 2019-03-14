@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import Category, Article, Bookmark, Rating
-from ..profiles.serializers import ProfileSerializer
+from .models import Category, Article, Bookmark, Rating, Comment
 from ..profiles.models import Profile
+from ..profiles.serializers import ProfileSerializer
 from authors.apps.authentication.models import User
 
 
@@ -141,3 +141,23 @@ class RatingSerializer(serializers.ModelSerializer):
         """
         model = Rating
         fields = ("score", "author", "rated_on", "article")
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = (
+            'id',
+            'body',
+            'created_at',
+            'updated_at',
+            'user',
+            'article')
+        read_only_fields = ('article', 'user',)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = ProfileSerializer(
+            Profile.objects.get(user=instance.user),
+            read_only=True).data
+        return representation

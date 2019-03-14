@@ -86,6 +86,7 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class VerifyAccount(GenericAPIView):
     permission_classes = (AllowAny, )
+    serializer_class = UserSerializer
 
     def post(self, request, format=None):
         token = request.query_params.get('token')
@@ -93,11 +94,11 @@ class VerifyAccount(GenericAPIView):
         email = payload['email']
         user = User.objects.filter(email=email)
         user.update(is_active=True)
+        data = {
+            'message': 'Account successfully verified, your free to  now login'
+        }
         return Response(
-            {
-                'message': 'Account successfully verified,'
-                'your free to  now login'
-            },
+            data,
             status=status.HTTP_200_OK)
 
 

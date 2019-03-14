@@ -4,6 +4,34 @@ from rest_framework.test import APITestCase, APIClient
 class BaseTest(APITestCase):
 
     def setUp(self):
+        self.article = {
+            "article": {
+                "title": "believer",
+                "description": "This test was created on womens day of 2019.",
+                "body": "I like to move it move it, I like to move it",
+            }
+        }
+
+        self.change_comment = {
+            "comment":
+            {"body": "this is new"}
+        }
+        self.new_comment_data = {
+            "comment":
+            {"body": "this is new"}
+        }
+
+        self.comment_data = {
+            "comment": {
+                "body": "His name was my name too."
+            }
+        }
+        self.second_comment_data = {
+            "comment": {
+                "body": "His name was my name too. This !"
+            }
+        }
+
         self.update_data = {
             "full_name": "User Full Name",
             "bio": "This is my bio"

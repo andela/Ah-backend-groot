@@ -1,18 +1,24 @@
 from django.urls import path
-
-from .views import (RetrieveUpdateDestroyCategory,
-                    CreateListCategory,
-                    CreateArticle,
-                    ArticleRetrieveUpdate, ChoiceView,
-                    ListBookmarksView, UnBookmarkView,
-                    BookmarkView, FavoriteArticle,
-                    UnFavoriteArticle, RatingsView, PublishArticleUpdate)
-from .models import LikeDislike, LikeDislikeManager, Article
+from .views import (
+    RetrieveUpdateDestroyCategory,
+    CreateListCategory,
+    CreateArticle,
+    ChoiceView,
+    ListBookmarksView, UnBookmarkView,
+    BookmarkView, FavoriteArticle,
+    UnFavoriteArticle, RatingsView, PublishArticleUpdate,
+    LikeDislike, Article,
+    ArticleRetrieveUpdate,
+    ListCreateComment,
+    RetrieveUpdateDestroyComment
+)
+from .models import LikeDislikeManager
 
 urlpatterns = [
     path('categories/', CreateListCategory.as_view(), name='create-category'),
     path('categories/<str:slug>', RetrieveUpdateDestroyCategory.as_view(),
          name='update-delete'),
+
     path('articles/', CreateArticle.as_view(), name='create-articles'),
     path('article/<str:slug>/', ArticleRetrieveUpdate.as_view(),
          name='update-articles'),
@@ -36,7 +42,18 @@ urlpatterns = [
          name='unbookmark_articles'),
     path('articles/me/bookmarks/', ListBookmarksView.as_view(),
          name='bookmarks'),
+
     path('article/<str:slug>/publish/', PublishArticleUpdate.as_view(),
          name='publish-article'),
     path("article/<slug>/rate/", RatingsView.as_view(), name="rating"),
+
+    path('article/<str:slug>/publish/', PublishArticleUpdate.as_view(),
+         name='publish-article'),
+
+    path("article/<slug>/rate/", RatingsView.as_view(), name="rating"),
+
+    path('articles/<str:slug>/comments/', ListCreateComment.as_view(),
+         name="get-comments"),
+    path('articles/<str:slug>/comments/<int:id>/',
+         RetrieveUpdateDestroyComment.as_view(), name="comments-crud"),
 ]
