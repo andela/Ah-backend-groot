@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Profile
-from authors.apps.authentication.serializers import UserSerializer
+from ..authentication.serializers import UserSerializer
+from ..authentication.models import User
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -16,4 +17,17 @@ class ProfileSerializer(serializers.ModelSerializer):
         representation['user'] = UserSerializer(
             instance.user,
             read_only=True).data["username"]
+        return representation
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email', 'username')
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['Profile'] = ProfileSerializer(
+            Profile.objects.get(user=instance),
+            read_only=True).data
         return representation
