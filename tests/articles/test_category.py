@@ -44,6 +44,15 @@ class TestCategory(APITestCase):
         response = self.add_category()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_can_add_category_twice(self):
+        self.add_category()
+        response = self.client.post("/api/categories/",
+                                    data=({
+                                        "category": {
+                                            "name": "Religion"}}),
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_can_update_category(self):
         self.add_category()
         response = self.client.put("/api/categories/religion",

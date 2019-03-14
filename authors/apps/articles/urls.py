@@ -1,18 +1,14 @@
 from django.urls import path
-from .views import (
-    RetrieveUpdateDestroyCategory,
-    CreateListCategory,
-    CreateArticle,
-    ChoiceView,
-    ListBookmarksView, UnBookmarkView,
-    BookmarkView, FavoriteArticle,
-    UnFavoriteArticle, RatingsView, PublishArticleUpdate,
-    LikeDislike, Article,
-    ArticleRetrieveUpdate,
-    ListCreateComment,
-    RetrieveUpdateDestroyComment
-)
-from .models import LikeDislikeManager
+
+from .views import (RetrieveUpdateDestroyCategory,
+                    CreateListCategory, ListCreateComment,
+                    CreateArticle, ListTagsView,
+                    ArticleRetrieveUpdate, ChoiceView,
+                    ListBookmarksView, UnBookmarkView,
+                    BookmarkView, FavoriteArticle,
+                    RetrieveUpdateDestroyComment,
+                    UnFavoriteArticle, RatingsView, PublishArticleUpdate)
+from .models import LikeDislike, LikeDislikeManager, Article
 
 urlpatterns = [
     path('categories/', CreateListCategory.as_view(), name='create-category'),
@@ -56,4 +52,7 @@ urlpatterns = [
          name="get-comments"),
     path('articles/<str:slug>/comments/<int:id>/',
          RetrieveUpdateDestroyComment.as_view(), name="comments-crud"),
+
+    path('tags/', ListTagsView.as_view(),
+         name='tags')
 ]

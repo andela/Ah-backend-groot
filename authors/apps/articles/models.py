@@ -70,6 +70,10 @@ class Article(models.Model):
         on_delete=models.CASCADE,
         related_name='author_articles'
     )
+    tags = models.ManyToManyField(
+        'articles.Tag',
+        related_name='articles'
+    )
     votes = GenericRelation(LikeDislike, related_name='articles')
     user_rates = models.CharField(max_length=10, default=0)
     reading_time = models.CharField(null=True, max_length=100)
@@ -140,3 +144,17 @@ class Comment(models.Model):
         'Article', on_delete=models.CASCADE, to_field="slug", blank=False
     )
     body = models.TextField(max_length=500)
+
+
+class Tag(models.Model):
+    tag = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(db_index=True, unique=True)
+
+    def __str__(self):
+        return self.tag
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = get_unique_slug(self, 'tag', 'slug')
+        return super().save(*args, **kwargs)
