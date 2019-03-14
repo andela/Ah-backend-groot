@@ -6,6 +6,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from authors.apps.authentication.models import User
 from django.utils import timezone
 from django.db.models import Avg
+from django.conf import settings
 
 
 class LikeDislikeManager(models.Manager):
@@ -71,6 +72,7 @@ class Article(models.Model):
     )
     votes = GenericRelation(LikeDislike, related_name='articles')
     user_rates = models.CharField(max_length=10, default=0)
+    reading_time = models.CharField(null=True, max_length=100)
 
     def __str__(self):
         return self.title
@@ -78,6 +80,7 @@ class Article(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = get_unique_slug(self, 'title', 'slug')
+            self.reading_time = self.calculate_reading_time()
         return super().save(*args, **kwargs)
 
     @property
@@ -87,6 +90,13 @@ class Article(models.Model):
         """
         ratings = self.scores.all().aggregate(score=Avg("score"))
         return float('%.2f' % (ratings["score"] if ratings['score'] else 0))
+
+    def calculate_reading_time(self):
+        word_count = 0
+        for word in self.body:
+            word_count += len(word) / settings.WORD_LENGTH
+        result = int(word_count / settings.WORD_PER_MINUTE)
+        return str(result) + " min read"
 
     class Meta:
         get_latest_by = 'created_at'
