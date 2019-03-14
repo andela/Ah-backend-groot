@@ -9,6 +9,7 @@ class BaseTest(APITestCase):
                 "title": "believer",
                 "description": "This test was created on womens day of 2019.",
                 "body": "I like to move it move it, I like to move it",
+                "tags": ["health", "sport", "love"]
             }
         }
 
@@ -55,6 +56,7 @@ class BaseTest(APITestCase):
                 "title": "believer",
                 "description": "This test was created on womens day of 2019.",
                 "body": "I like to move it move it",
+                'tags': ["soup", 'sauce', 'beef']
             }
         }
         self.new_article = {
@@ -62,6 +64,7 @@ class BaseTest(APITestCase):
                 "title": "believer",
                 "description": "This test was created on womens day of 2019.",
                 "body": "I like to move it move it, I like to move it",
+                'tags': ["sauce", 'sauce', 'i am groot']
             }
         }
         self.empty_article = {

@@ -14,14 +14,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from .pagination import ArticlePagination
+from .models import (LikeDislike, Category, Article, Bookmark, Tag, Comment)
 from .serializers import (CategorySerializer, ArticleSerializer,
-                          BookmarkSerializer, RatingSerializer,
-                          CommentSerializer)
+                          TagSerializer, CommentSerializer,
+                          BookmarkSerializer, RatingSerializer)
 from authors.apps.articles.renderers import (CategoryJSONRenderer,
                                              BookmarkJSONRenderer,
+                                             TagJSONRenderer,
                                              ArticleJSONRenderer)
-from .models import (Category, Article, Comment,
-                     LikeDislike, Bookmark)
 
 
 class CreateListCategory(ListCreateAPIView):
@@ -74,12 +74,9 @@ class CreateArticle(ListCreateAPIView):
         article = request.data.get('article', {})
         serializer = self.get_serializer(data=article)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        serializer.save()
         return Response(serializer.data,
                         status=status.HTTP_201_CREATED)
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
 
 
 class ArticleRetrieveUpdate(RetrieveUpdateDestroyAPIView):
@@ -351,3 +348,10 @@ class RetrieveUpdateDestroyComment(RetrieveUpdateDestroyAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ListTagsView(ListAPIView):
+    serializer_class = TagSerializer
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (TagJSONRenderer,)
+    queryset = Tag.objects.all()

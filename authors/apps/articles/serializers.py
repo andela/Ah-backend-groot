@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import Category, Article, Bookmark, Rating, Comment
-from ..profiles.models import Profile
+from .models import Category, Article, Bookmark, Rating, Comment, Tag
 from ..profiles.serializers import ProfileSerializer
+from ..profiles.models import Profile
 from authors.apps.authentication.models import User
 
 
@@ -10,15 +10,27 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = (
             'name',
-            'slug',
-            'id')
+            'slug',)
         read_only_fields = ('id', 'slug',)
+
+
+class TagsRelationSerializer(serializers.RelatedField):
+    def get_queryset(self):
+        return Tag.objects.all()
+
+    def to_internal_value(self, data):
+        tag, created = Tag.objects.get_or_create(tag=data)
+        return tag
+
+    def to_representation(self, value):
+        return value.tag
 
 
 class ArticleSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
     likes = serializers.SerializerMethodField()
     dislikes = serializers.SerializerMethodField()
+    tagList = TagsRelationSerializer(many=True, required=False, source='tags')
 
     class Meta:
         model = Article
@@ -36,6 +48,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             "favorites_count",
             'is_published',
             'author',
+            'tagList',
             'likes',
             'dislikes',
             'reading_time'
@@ -46,6 +59,21 @@ class ArticleSerializer(serializers.ModelSerializer):
             required=False
         )
 
+    def create(self, validated_data):
+        author = self.context['request'].user
+
+        tags = self.initial_data['tags']
+        article = Article.objects.create(author=author, **validated_data)
+
+        for tag in tags:
+            query_tag = Tag.objects.filter(tag=tag)
+            if not query_tag.exists():
+                article.tags.create(tag=tag)
+            else:
+                article.tags.add(query_tag[0].id)
+
+        return article
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['author'] = ProfileSerializer(
@@ -53,6 +81,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             read_only=True).data
         representation['category'] = CategorySerializer(instance.category,
                                                         read_only=True).data
+        representation['tagList'] = TagSerializer(instance.tags,
+                                                  many=True).data
         return representation
 
     """Gets all the articles likes"""
@@ -161,3 +191,12 @@ class CommentSerializer(serializers.ModelSerializer):
             Profile.objects.get(user=instance.user),
             read_only=True).data
         return representation
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('tag',)
+
+    def to_representation(self, instance):
+        return instance.tag

@@ -12,3 +12,7 @@ class ArticleJSONRenderer(MainRenderer):
 
 class BookmarkJSONRenderer(MainRenderer):
     object_label = 'bookmark'
+
+
+class TagJSONRenderer(MainRenderer):
+    object_label = 'tag'
