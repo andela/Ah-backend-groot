@@ -1,9 +1,11 @@
 from django.conf import settings
-from ..authentication.models import User
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
+from django.template.loader import render_to_string
 import re
 from rest_framework import serializers
+
+from ..authentication.models import User
 
 
 def validate_registration(data):
@@ -89,3 +91,16 @@ def send_mail_user(request, serializer):
     refined_info = re.sub('  +', ' ', info)
     email_verify = {"Message": refined_info, "token": serializer.data['token']}
     return email_verify
+
+
+def send_an_email(receiver_email, body, article_link, sender):
+    message = render_to_string(body, {
+        "article_link": article_link,
+        "sender": sender})
+    email = EmailMessage(
+        'Authors Haven',
+        message,
+        to=[receiver_email],
+    )
+    email.content_subtype = "html"
+    email.send(fail_silently=False)

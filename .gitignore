@@ -63,6 +63,7 @@ authors/apps/profiles/migrations/0001_initial.py
 # Flask stuff:
 instance/
 .webassets-cache
+*/migrations/*
 
 # Scrapy stuff:
 .scrapy
