@@ -118,18 +118,18 @@ class FollowersFollowingView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer
 
-
-class FollowersListView(FollowersFollowingView):
-    def get_queryset(self, *args, **kwargs):
+    def get_profile(self, *args, **kwargs):
         profile = Profile.objects.get(
             user__username=self.kwargs.get('username')
         )
-        return profile.followed_by.all()
+        return profile
+
+
+class FollowersListView(FollowersFollowingView):
+    def get_queryset(self, *args, **kwargs):
+        return self.get_profile().followed_by.all()
 
 
 class FollowingListView(FollowersFollowingView):
     def get_queryset(self, *args, **kwargs):
-        profile = Profile.objects.get(
-            user__username=self.kwargs.get('username')
-        )
-        return profile.follows.all()
+        return self.get_profile().follows.all()

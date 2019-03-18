@@ -55,7 +55,10 @@ coverage.xml
 *.log
 */migrations/*
 local_settings.py
-*/migrations/*
+authors/apps/articles/migrations/0001_initial.py
+authors/apps/articles/migrations/0002_auto_20190315_1729.py
+authors/apps/authentication/migrations/0001_initial.py
+authors/apps/profiles/migrations/0001_initial.py
 
 # Flask stuff:
 instance/
