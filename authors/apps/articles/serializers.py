@@ -1,6 +1,8 @@
 from rest_framework import serializers
-from .models import (Category, Article, Bookmark,
-                     Rating, Comment, Tag, ReportedArticle)
+from .models import (Category, Article,
+                     ReportedArticle,
+                     Bookmark, Rating, Comment,
+                     Tag, CommentHistory)
 from ..profiles.serializers import ProfileSerializer
 from ..profiles.models import Profile
 from authors.apps.authentication.models import User
@@ -186,6 +188,20 @@ class CommentSerializer(serializers.ModelSerializer):
             'article')
         read_only_fields = ('article', 'user',)
 
+    def create(self, validated_data):
+        current_user = self.context['request'].user
+        custom_kwarg = self.context['request']._stream.resolver_match.kwargs
+        slug = custom_kwarg.get('slug')
+        article = Article.objects.get(slug=slug)
+        comment = Comment.objects.create(user=current_user, article=article)
+
+        return comment
+
+    def update(self, instance, validated_data):
+        CommentHistory.objects.create(comment=instance,
+                                      body=validated_data['body'])
+        return instance
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['user'] = ProfileSerializer(
@@ -208,3 +224,11 @@ class ReportArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportedArticle
         fields = '__all__'
+
+
+class CommentHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommentHistory
+        fields = (
+            'body',
+            'updated_at',)

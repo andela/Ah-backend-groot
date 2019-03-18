@@ -23,6 +23,11 @@ class MainRenderer(JSONRenderer):
             })
 
         else:
+            if(self.object_label == 'history'):
+                return json.dumps({
+                    self.object_label: data
+                })
+
             return json.dumps({
                 self.object_label + 's': data
             })
