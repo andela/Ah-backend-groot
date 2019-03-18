@@ -12,7 +12,13 @@ class BaseTest(APITestCase):
                 "tags": ["health", "sport", "love"]
             }
         }
-
+        self.highlight_comment = {
+            "comment": {
+                "body": "I am commenting on a highlight",
+                "start_position": 0,
+                "end_position": 20
+            }
+        }
         self.change_comment = {
             "comment":
             {"body": "this is new"}

@@ -5,13 +5,16 @@ from .test_category import TestCategory
 
 class TestComment(BaseTest, TestCategory):
 
-    def test_get_comment(self):
+    def create_comment(self):
         article_response = self.create_an_article(
             self.article, self.registration_data)
         slug = article_response.data["slug"]
-        comment_reponse = self.client.post(
+        return self.client.post(
             "/api/articles/{}/comments/".format(str(slug)),
-            self.comment_data, format="json")
+            self.comment_data, format="json"), slug
+
+    def test_get_comment(self):
+        comment_reponse, slug = self.create_comment()
 
         get_response = self.client.get(
             "/api/articles/{}/comments/".format(str(slug)))
@@ -105,3 +108,12 @@ class TestComment(BaseTest, TestCategory):
                                                            comment_id),
             self.change_comment, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_can_highlight_and_comment_on_any_test(self):
+        article_response = self.create_an_article(
+            self.article, self.registration_data)
+        slug = article_response.data["slug"]
+        comment_reponse = self.client.post(
+            "/api/articles/{}/comments/".format(str(slug)),
+            self.highlight_comment, format="json")
+        self.assertEqual(comment_reponse.status_code, status.HTTP_201_CREATED)

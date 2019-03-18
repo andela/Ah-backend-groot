@@ -348,8 +348,20 @@ class ListCreateComment(ListCreateAPIView):
             {"Comments": serializer.data,
              "commentsCount": queryset.count()})
 
-    def create(self, request, *args, **kwargs):
+    def highlight_comment(self, request):
+        article_slug = self.kwargs['slug']
+        specific_article = get_object_or_404(Article, slug=article_slug)
         comment = request.data.get('comment', {})
+        if 'end_position' in comment and 'start_position' in comment:
+            end_position = comment.get('end_position', 0)
+            start_position = comment.get('start_position', 0)
+            article_section = specific_article.body[start_position:
+                                                    end_position]
+            comment['article_section'] = article_section
+        return comment
+
+    def create(self, request, *args, **kwargs):
+        comment = self.highlight_comment(request)
         serializer = self.get_serializer(data=comment)
         serializer.is_valid(raise_exception=True)
         serializer.save()
