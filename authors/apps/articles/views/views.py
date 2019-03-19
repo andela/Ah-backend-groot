@@ -67,7 +67,7 @@ class RetrieveUpdateDestroyCategory(RetrieveUpdateDestroyAPIView):
                         status=status.HTTP_204_NO_CONTENT)
 
 
-class ChoiceView(ListCreateAPIView):
+class ArticleChoiceView(ListCreateAPIView):
     """Implements the like and dislike endpoints."""
     serializer_class = ArticleSerializer
     model = None
