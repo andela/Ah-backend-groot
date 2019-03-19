@@ -23,6 +23,8 @@ from authors.apps.articles.renderers import (CategoryJSONRenderer,
                                              TagJSONRenderer,
                                              ArticleJSONRenderer)
 
+from rest_framework import filters
+
 
 class CreateListCategory(ListCreateAPIView):
     serializer_class = CategorySerializer
@@ -69,6 +71,9 @@ class CreateArticle(ListCreateAPIView):
     serializer_class = ArticleSerializer
     queryset = Article.objects.all()
     pagination_class = ArticlePagination
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('tags__tag', 'author__username',
+                     'title', 'body', 'description')
 
     def create(self, request):
         article = request.data.get('article', {})
@@ -77,6 +82,26 @@ class CreateArticle(ListCreateAPIView):
         serializer.save()
         return Response(serializer.data,
                         status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def get_queryset(self):
+        queryset = self.queryset
+        tag = self.request.query_params.get('tag', None)
+        if tag:
+            queryset = queryset.filter(tags__tag=tag)
+        author = self.request.query_params.get('author', None)
+        if author:
+            queryset = queryset.filter(author__username=author)
+        title = self.request.query_params.get('title', None)
+        if title:
+            queryset = queryset.filter(title__icontains=title)
+        favorite_author = self.request.query_params.get('favorited', None)
+        if favorite_author:
+            queryset = queryset.filter(author__username=favorite_author,
+                                       favorited=True)
+        return queryset
 
 
 class ArticleRetrieveUpdate(RetrieveUpdateDestroyAPIView):
