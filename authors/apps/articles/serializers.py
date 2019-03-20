@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import (Category, Article,
                      ReportedArticle,
                      Bookmark, Rating, Comment,
-                     Tag, CommentHistory)
+                     Tag, CommentHistory, ReadingStats)
 from ..profiles.serializers import ProfileSerializer
 from ..profiles.models import Profile
 from authors.apps.authentication.models import User
@@ -34,6 +34,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField()
     dislikes = serializers.SerializerMethodField()
     tagList = TagsRelationSerializer(many=True, required=False, source='tags')
+    read_stats = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -54,7 +55,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             'tagList',
             'likes',
             'dislikes',
-            'reading_time'
+            'reading_time',
+            'read_stats'
         )
         read_only_fields = ('id', 'slug', 'author_id', 'is_published',)
         user_rating = serializers.CharField(
@@ -95,6 +97,9 @@ class ArticleSerializer(serializers.ModelSerializer):
     """Gets all the articles dislikes"""
     def get_dislikes(self, instance):
         return instance.votes.dislikes().count()
+
+    def get_read_stats(self, instance):
+        return ReadingStats.objects.filter(article=instance).count()
 
 
 class BookmarkSerializer(serializers.ModelSerializer):
@@ -235,3 +240,10 @@ class CommentHistorySerializer(serializers.ModelSerializer):
         fields = (
             'body',
             'updated_at',)
+
+
+class ReadStatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReadingStats
+        fields = ('user', 'article', 'read_stats')
+        read_only = ('author', 'article')

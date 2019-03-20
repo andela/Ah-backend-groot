@@ -16,12 +16,13 @@ from rest_framework import serializers
 from rest_framework import authentication
 from .pagination import ArticlePagination
 from .models import (LikeDislike, ReportedArticle, CommentHistory,
-                     Category, Article, Bookmark, Tag, Comment)
+                     Category, Article, Bookmark, Tag, Comment, ReadingStats)
 from .serializers import (CategorySerializer, ArticleSerializer,
                           TagSerializer, CommentSerializer,
                           BookmarkSerializer, RatingSerializer,
                           CommentHistorySerializer,
-                          ReportArticleSerializer)
+                          ReportArticleSerializer,
+                          ReadStatsSerializer)
 import jwt
 from django.core.mail import send_mail
 from authors.settings import EMAIL_HOST_USER, SECRET_KEY
@@ -125,6 +126,14 @@ class ArticleRetrieveUpdate(RetrieveUpdateDestroyAPIView):
     def get_object(self):
         return get_object_or_404(
             self.get_queryset(), slug=self.kwargs.get('slug'))
+
+    def retrieve(self, request, *args, **kwargs):
+        article = self.get_object()
+        serializer = ArticleSerializer(article)
+        current_user = request.user
+        ReadingStats.objects.create(article=article,
+                                    user=current_user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         self.serializer_instance = self.get_object()
@@ -507,3 +516,22 @@ class CreateReportView(CreateAPIView):
                   receipient], fail_silently=False)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ReadStatsAPIView(ListAPIView):
+    """
+    this view class enables the author to view their reading
+    stats
+    """
+    serializer_class = ReadStatsSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, username):
+        """ this gets the readstats of an article """
+        reading_stats = ReadingStats.objects.filter(user=request.author.id)
+        reading_statsCount = reading_stats.count()
+        serializer = self.serializer_class(reading_stats, many=True)
+        return Response({
+            "readstats": serializer.data,
+            "readcount": reading_statsCount
+        }, )

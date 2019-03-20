@@ -78,6 +78,7 @@ class Article(models.Model):
     votes = GenericRelation(LikeDislike, related_name='articles')
     user_rates = models.CharField(max_length=10, default=0)
     reading_time = models.CharField(null=True, max_length=100)
+    read_stats = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
@@ -181,3 +182,16 @@ class ReportedArticle(models.Model):
 
     class Meta:
         ordering = ['-reported_at']
+
+
+class ReadingStats(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE,
+                                blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    read_stats = models.IntegerField(default=0)
+
+    def __str__(self):
+        return "article_title: {}, user: {}, read_stats: {}".format(
+            self.article,
+            self.user,
+            self.read_stats)
