@@ -64,7 +64,7 @@ class Article(models.Model):
         'articles.Category',
         to_field='slug',
         on_delete=models.CASCADE,
-        related_name='articles_category',
+        related_name='articles_category'
     )
     author = models.ForeignKey(
         'authentication.User',
@@ -78,6 +78,7 @@ class Article(models.Model):
     votes = GenericRelation(LikeDislike, related_name='articles')
     user_rates = models.CharField(max_length=10, default=0)
     reading_time = models.CharField(null=True, max_length=100)
+    read_stats = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
@@ -145,6 +146,17 @@ class Comment(models.Model):
         'Article', on_delete=models.CASCADE, to_field="slug", blank=False
     )
     body = models.TextField(max_length=500)
+    votes = GenericRelation(LikeDislike, related_name='comments')
+    article_section = models.TextField(blank=True, null=True)
+    start_position = models.CharField(max_length=500, blank=True, null=True)
+    end_position = models.CharField(max_length=500, blank=True, null=True)
+
+
+class CommentHistory(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    body = models.TextField()
+    updated_at = models.DateTimeField(auto_now_add=True)
+    votes = GenericRelation(LikeDislike, related_name='comments')
 
 
 class Tag(models.Model):
@@ -159,3 +171,29 @@ class Tag(models.Model):
         if not self.slug:
             self.slug = get_unique_slug(self, 'tag', 'slug')
         return super().save(*args, **kwargs)
+
+
+class ReportedArticle(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE)
+    reported_at = models.DateTimeField(auto_now_add=True)
+    reported_reason = models.CharField(max_length=500, blank=False)
+
+    def __str__(self):
+        return self.reported_reason
+
+    class Meta:
+        ordering = ['-reported_at']
+
+
+class ReadingStats(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE,
+                                blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    read_stats = models.IntegerField(default=0)
+
+    def __str__(self):
+        return "article_title: {}, user: {}, read_stats: {}".format(
+            self.article,
+            self.user,
+            self.read_stats)

@@ -1,9 +1,11 @@
 from django.conf import settings
-from ..authentication.models import User
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
+from django.template.loader import render_to_string
 import re
 from rest_framework import serializers
+
+from ..authentication.models import User
 
 
 def validate_registration(data):
@@ -19,31 +21,20 @@ def validate_registration(data):
             }
         )
 
-    if not username:
-        raise serializers.ValidationError(
-            {
-                'input fields':
-                'Please input a username'
-            }
-        )
-    if len(username) < 4:
-        raise serializers.ValidationError(
-            {
-                'username':
-                'Please the username should be at'
-                'least 4 characters'
-            }
-        )
+    validate_username_isnot_empty(username)
 
-    if not re.match(r"^[A-Za-z]+[\d\w_]+", username):
-        raise serializers.ValidationError(
+    validate_username_length(username)
 
-            {
-                'username':
-                'Username should start with letters'
-            }
-        )
+    validate_username(username)
 
+    validate_email(email)
+
+    valid_password(password)
+
+    return{"username": username, "email": email, "password": password}
+
+
+def validate_email(email):
     if not re.search(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
         raise serializers.ValidationError(
             {
@@ -53,8 +44,37 @@ def validate_registration(data):
             }
         )
 
-    valid_password(password)
-    return{"username": username, "email": email, "password": password}
+
+def validate_username_length(username):
+    if len(username) < 4:
+        raise serializers.ValidationError(
+            {
+                'username':
+                'Please the username should be at'
+                'least 4 characters'
+            }
+        )
+
+
+def validate_username_isnot_empty(username):
+    if not username:
+        raise serializers.ValidationError(
+            {
+                'input fields':
+                'Please input a username'
+            }
+        )
+
+
+def validate_username(username):
+    if not re.match(r"^[A-Za-z]+[\d\w_]+", username):
+        raise serializers.ValidationError(
+
+            {
+                'username':
+                'Username should start with letters'
+            }
+        )
 
 
 def valid_password(password):
@@ -89,3 +109,16 @@ def send_mail_user(request, serializer):
     refined_info = re.sub('  +', ' ', info)
     email_verify = {"Message": refined_info, "token": serializer.data['token']}
     return email_verify
+
+
+def send_an_email(receiver_email, body, article_link, sender):
+    message = render_to_string(body, {
+        "article_link": article_link,
+        "sender": sender})
+    email = EmailMessage(
+        'Authors Haven',
+        message,
+        to=[receiver_email],
+    )
+    email.content_subtype = "html"
+    email.send(fail_silently=False)

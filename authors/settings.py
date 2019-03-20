@@ -59,7 +59,7 @@ ROOT_URLCONF = 'authors.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'authors/apps/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -152,6 +152,10 @@ WORD_PER_MINUTE = 200
     definition of each word is standardized to be five characters long.
 """
 WORD_LENGTH = 5
+
+# Social
+TWITTER_APP_CONSUMER_API_KEY = os.environ.get('TWITTER_APP_CONSUMER_API_KEY')
+TWITTER_APP_CONSUMER_API_SECRET_KEY = os.environ.get('TWITTER_APP_CONSUMER_API_SECRET_KEY')
 
 # Media (images)
 MEDIA_URL = '/media/'

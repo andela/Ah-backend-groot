@@ -1,14 +1,17 @@
 from django.urls import path
 
-from .views import (RetrieveUpdateDestroyCategory,
-                    CreateListCategory, ListCreateComment,
-                    CreateArticle, ListTagsView,
-                    ArticleRetrieveUpdate, ChoiceView,
-                    ListBookmarksView, UnBookmarkView,
-                    BookmarkView, FavoriteArticle,
-                    RetrieveUpdateDestroyComment,
-                    UnFavoriteArticle, RatingsView, PublishArticleUpdate)
-from .models import LikeDislike, LikeDislikeManager, Article
+from .views.views import (RetrieveUpdateDestroyCategory, CreateListCategory,
+                          ListTagsView, ListBookmarksView,
+                          UnBookmarkView, BookmarkView,
+                          RatingsView, CreateReportView,
+                          ArticleChoiceView)
+from .views.article_view import (CreateArticle, ArticleRetrieveUpdate,
+                                 ShareArticleView, PublishArticleUpdate,
+                                 FavoriteArticle, UnFavoriteArticle)
+from .views.comment_view import (ListCreateComment, ListCommentHistoryView,
+                                 RetrieveUpdateDestroyComment,
+                                 CommentChoiceView)
+from .models import LikeDislike, LikeDislikeManager, Article, Comment
 
 urlpatterns = [
     path('categories/', CreateListCategory.as_view(), name='create-category'),
@@ -19,12 +22,12 @@ urlpatterns = [
     path('article/<str:slug>/', ArticleRetrieveUpdate.as_view(),
          name='update-articles'),
     path('articles/<str:slug>/like/',
-         ChoiceView.as_view(vote_type=LikeDislike.LIKE, model=Article,
-                            manager=LikeDislikeManager),
+         ArticleChoiceView.as_view(vote_type=LikeDislike.LIKE, model=Article,
+                                   manager=LikeDislikeManager),
          name='article_like'),
     path(
         'articles/<str:slug>/dislike/',
-        ChoiceView.as_view(
+        ArticleChoiceView.as_view(
             vote_type=LikeDislike.DISLIKE, model=Article,
             manager=LikeDislikeManager),
         name='article_dislike'),
@@ -52,7 +55,18 @@ urlpatterns = [
          name="get-comments"),
     path('articles/<str:slug>/comments/<int:id>/',
          RetrieveUpdateDestroyComment.as_view(), name="comments-crud"),
+    path('articles/<str:slug>/comments/<int:id>/history/',
+         ListCommentHistoryView.as_view(), name="comment-history"),
+    path('articles/<str:slug>/comments/<int:pk>/like/',
+         CommentChoiceView.as_view(vote_type=LikeDislike.LIKE, model=Comment,
+                                   manager=LikeDislikeManager),
+         name='comment_like'),
 
     path('tags/', ListTagsView.as_view(),
-         name='tags')
+         name='tags'),
+
+    path('article/<str:slug>/share/<str:platform>/',
+         ShareArticleView.as_view(),
+         name='share-article'),
+    path('article/<slug>/report/', CreateReportView.as_view())
 ]
