@@ -15,11 +15,12 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework import authentication
 from .pagination import ArticlePagination
-from .models import (LikeDislike, ReportedArticle,
+from .models import (LikeDislike, ReportedArticle, CommentHistory,
                      Category, Article, Bookmark, Tag, Comment)
 from .serializers import (CategorySerializer, ArticleSerializer,
                           TagSerializer, CommentSerializer,
                           BookmarkSerializer, RatingSerializer,
+                          CommentHistorySerializer,
                           ReportArticleSerializer)
 import jwt
 from django.core.mail import send_mail
@@ -28,6 +29,7 @@ from authors.apps.authentication.models import User
 from authors.apps.articles.renderers import (CategoryJSONRenderer,
                                              BookmarkJSONRenderer,
                                              TagJSONRenderer,
+                                             CommentHistoryJSONRenderer,
                                              ArticleJSONRenderer)
 from ...apps.core.utils import send_an_email
 from decouple import config
@@ -350,15 +352,25 @@ class ListCreateComment(ListCreateAPIView):
         comment = request.data.get('comment', {})
         serializer = self.get_serializer(data=comment)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        serializer.save()
         return Response(serializer.data,
                         status=status.HTTP_201_CREATED)
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user,
-                        article=Article.objects.get(
-                            slug=self.kwargs.get('slug'))
-                        )
+
+class ListCommentHistoryView(ListAPIView):
+    serializer_class = CommentHistorySerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (CommentHistoryJSONRenderer,)
+    queryset = CommentHistory.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        history = self.queryset.filter(
+            comment_id=self.kwargs['id'])
+        if history.count() < 1:
+            return Response({"message": "This comment has not been edited"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(history, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class RetrieveUpdateDestroyComment(RetrieveUpdateDestroyAPIView):

@@ -8,8 +8,10 @@ from .views import (RetrieveUpdateDestroyCategory,
                     ListBookmarksView, UnBookmarkView,
                     BookmarkView, FavoriteArticle,
                     RetrieveUpdateDestroyComment,
-                    UnFavoriteArticle, RatingsView, PublishArticleUpdate,
-                    CreateReportView)
+                    UnFavoriteArticle, RatingsView,
+                    CreateReportView,
+                    ListCommentHistoryView,
+                    PublishArticleUpdate)
 from .models import LikeDislike, LikeDislikeManager, Article
 
 urlpatterns = [
@@ -54,6 +56,8 @@ urlpatterns = [
          name="get-comments"),
     path('articles/<str:slug>/comments/<int:id>/',
          RetrieveUpdateDestroyComment.as_view(), name="comments-crud"),
+    path('articles/<str:slug>/comments/<int:id>/history/',
+         ListCommentHistoryView.as_view(), name="comment-history"),
 
     path('tags/', ListTagsView.as_view(),
          name='tags'),

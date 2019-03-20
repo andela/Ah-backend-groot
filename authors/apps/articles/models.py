@@ -147,6 +147,12 @@ class Comment(models.Model):
     body = models.TextField(max_length=500)
 
 
+class CommentHistory(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    body = models.TextField()
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+
 class Tag(models.Model):
     tag = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)

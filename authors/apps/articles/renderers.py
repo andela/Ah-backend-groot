@@ -16,3 +16,7 @@ class BookmarkJSONRenderer(MainRenderer):
 
 class TagJSONRenderer(MainRenderer):
     object_label = 'tag'
+
+
+class CommentHistoryJSONRenderer(MainRenderer):
+    object_label = 'history'
