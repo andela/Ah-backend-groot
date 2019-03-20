@@ -6,6 +6,7 @@ from rest_framework.generics import (
     ListAPIView,
 )
 from rest_framework.permissions import (IsAdminUser, AllowAny,
+                                        IsAuthenticatedOrReadOnly,
                                         IsAuthenticated)
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.response import Response
@@ -22,6 +23,8 @@ from authors.apps.articles.renderers import (CategoryJSONRenderer,
                                              BookmarkJSONRenderer,
                                              TagJSONRenderer,
                                              ArticleJSONRenderer)
+from ...apps.core.utils import send_an_email
+from decouple import config
 
 from rest_framework import filters
 
@@ -105,7 +108,7 @@ class CreateArticle(ListCreateAPIView):
 
 
 class ArticleRetrieveUpdate(RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_class = (ArticleJSONRenderer,)
     queryset = Article.objects.select_related('author', 'category')
     serializer_class = ArticleSerializer
@@ -380,3 +383,41 @@ class ListTagsView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = (TagJSONRenderer,)
     queryset = Tag.objects.all()
+
+
+class ShareArticleView(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Article.objects.select_related('author', 'category')
+    serializer_class = ArticleSerializer
+
+    def get_object(self):
+        return get_object_or_404(
+            self.get_queryset(), slug=self.kwargs.get('slug'))
+
+    def create(self, request, *args, **kwargs):
+        share_platform = self.kwargs.get('platform')
+        article_link = 'http://{0}/api/article/{1}/'.format(
+            request.get_host(),
+            self.kwargs.get('slug'))
+        article = self.get_object()
+        if(share_platform == 'gmail'):
+            receiver = request.data.get("share_with")
+            send_an_email(receiver,
+                          'share_article.html',
+                          article_link,
+                          request.user.username)
+            return Response({"message": "article has been shared"},
+                            status=status.HTTP_200_OK)
+
+        elif(share_platform == "facebook"):
+            share_link = "https://www.facebook.com/v2.9/dialog/share?app_id={0}&display=page&href={1}".format(config('FACEBOOK_APP_ID'), article_link) # NOQA
+
+        elif(share_platform == "twitter"):
+            share_link = "https://twitter.com/intent/tweet?text={0}%20by%20{1}%20{2}".format(article.title.replace(" ", "%20"), article.author.username, article_link) # NOQA
+
+        else:
+            return Response({"message": "invalid url"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        article.save()
+        return Response({"share link": share_link},
+                        status=status.HTTP_200_OK)

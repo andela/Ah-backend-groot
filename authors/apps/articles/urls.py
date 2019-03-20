@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (RetrieveUpdateDestroyCategory,
                     CreateListCategory, ListCreateComment,
                     CreateArticle, ListTagsView,
+                    ShareArticleView,
                     ArticleRetrieveUpdate, ChoiceView,
                     ListBookmarksView, UnBookmarkView,
                     BookmarkView, FavoriteArticle,
@@ -54,5 +55,9 @@ urlpatterns = [
          RetrieveUpdateDestroyComment.as_view(), name="comments-crud"),
 
     path('tags/', ListTagsView.as_view(),
-         name='tags')
+         name='tags'),
+
+    path('article/<str:slug>/share/<str:platform>/',
+         ShareArticleView.as_view(),
+         name='share-article'),
 ]

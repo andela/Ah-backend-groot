@@ -61,6 +61,7 @@ authors/apps/*/migrations/*
 # Flask stuff:
 instance/
 .webassets-cache
+*/migrations/*
 
 # Scrapy stuff:
 .scrapy
