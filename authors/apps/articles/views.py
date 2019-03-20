@@ -13,12 +13,18 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-
+from rest_framework import authentication
 from .pagination import ArticlePagination
-from .models import (LikeDislike, Category, Article, Bookmark, Tag, Comment)
+from .models import (LikeDislike, ReportedArticle,
+                     Category, Article, Bookmark, Tag, Comment)
 from .serializers import (CategorySerializer, ArticleSerializer,
                           TagSerializer, CommentSerializer,
-                          BookmarkSerializer, RatingSerializer)
+                          BookmarkSerializer, RatingSerializer,
+                          ReportArticleSerializer)
+import jwt
+from django.core.mail import send_mail
+from authors.settings import EMAIL_HOST_USER, SECRET_KEY
+from authors.apps.authentication.models import User
 from authors.apps.articles.renderers import (CategoryJSONRenderer,
                                              BookmarkJSONRenderer,
                                              TagJSONRenderer,
@@ -421,3 +427,59 @@ class ShareArticleView(CreateAPIView):
         article.save()
         return Response({"share link": share_link},
                         status=status.HTTP_200_OK)
+
+
+class CreateReportView(CreateAPIView):
+    serializer_class = ReportArticleSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_token(self, request):
+
+        try:
+            auth_header = authentication.get_authorization_header(request).\
+                split()[1]
+            token = jwt.decode(auth_header, SECRET_KEY, 'utf-8')
+            author_id = token['id']
+            return author_id
+        except User.DoesNotExist:
+            return ("Token is invalid")
+
+    def post(self, request, slug, **kwargs):
+        try:
+            article_id = (Article.objects.get(slug=slug).id)
+        except Article.DoesNotExist:
+            return Response({
+                "message": "Article does not exist!"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        reported_reason = request.data.get('reported_reason')
+
+        author_id = (self.get_token(request))
+
+        if ReportedArticle.objects.filter(
+                reporter=author_id).filter(article=article_id).exists():
+            return Response({
+                "message": "You have already reported this Article",
+            }, status=status.HTTP_400_BAD_REQUEST)
+        article_data = Article.objects.get(pk=article_id)
+        new_report = {
+            "article": article_id,
+            "article_title": article_data.title,
+            "report_reported": True,
+            "reported_reason": reported_reason,
+            "reporter": author_id
+        }
+
+        serializer = self.serializer_class(data=new_report)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        subject = "ARTICLES VIOLATIONS ALERT"
+        user = User.objects.get(pk=author_id)
+        body = "Article: {0},     Article_title:{1} ,   Reported by: {2},    Reason: {3}".format(article_id, article_data.title, user.username, new_report['reported_reason']) # NOQA
+        receipient = EMAIL_HOST_USER
+        email_sender = EMAIL_HOST_USER
+        send_mail(subject, body, email_sender, [
+                  receipient], fail_silently=False)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

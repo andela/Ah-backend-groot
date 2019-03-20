@@ -8,7 +8,8 @@ from .views import (RetrieveUpdateDestroyCategory,
                     ListBookmarksView, UnBookmarkView,
                     BookmarkView, FavoriteArticle,
                     RetrieveUpdateDestroyComment,
-                    UnFavoriteArticle, RatingsView, PublishArticleUpdate)
+                    UnFavoriteArticle, RatingsView, PublishArticleUpdate,
+                    CreateReportView)
 from .models import LikeDislike, LikeDislikeManager, Article
 
 urlpatterns = [
@@ -60,4 +61,5 @@ urlpatterns = [
     path('article/<str:slug>/share/<str:platform>/',
          ShareArticleView.as_view(),
          name='share-article'),
+    path('article/<slug>/report/', CreateReportView.as_view())
 ]

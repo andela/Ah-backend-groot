@@ -159,3 +159,16 @@ class Tag(models.Model):
         if not self.slug:
             self.slug = get_unique_slug(self, 'tag', 'slug')
         return super().save(*args, **kwargs)
+
+
+class ReportedArticle(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE)
+    reported_at = models.DateTimeField(auto_now_add=True)
+    reported_reason = models.CharField(max_length=500, blank=False)
+
+    def __str__(self):
+        return self.reported_reason
+
+    class Meta:
+        ordering = ['-reported_at']

@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Category, Article, Bookmark, Rating, Comment, Tag
+from .models import (Category, Article, Bookmark,
+                     Rating, Comment, Tag, ReportedArticle)
 from ..profiles.serializers import ProfileSerializer
 from ..profiles.models import Profile
 from authors.apps.authentication.models import User
@@ -200,3 +201,10 @@ class TagSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return instance.tag
+
+
+class ReportArticleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ReportedArticle
+        fields = '__all__'
