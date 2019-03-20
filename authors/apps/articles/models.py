@@ -145,6 +145,9 @@ class Comment(models.Model):
         'Article', on_delete=models.CASCADE, to_field="slug", blank=False
     )
     body = models.TextField(max_length=500)
+    article_section = models.TextField(blank=True, null=True)
+    start_position = models.CharField(max_length=500, blank=True, null=True)
+    end_position = models.CharField(max_length=500, blank=True, null=True)
 
 
 class CommentHistory(models.Model):

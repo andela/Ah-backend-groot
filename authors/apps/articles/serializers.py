@@ -185,7 +185,10 @@ class CommentSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'user',
-            'article')
+            'article',
+            'article_section',
+            'end_position',
+            'start_position')
         read_only_fields = ('article', 'user',)
 
     def create(self, validated_data):
