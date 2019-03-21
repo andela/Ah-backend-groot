@@ -182,8 +182,11 @@ class RatingSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    likes = serializers.SerializerMethodField()
+
     class Meta:
         model = Comment
+
         fields = (
             'id',
             'body',
@@ -191,6 +194,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'updated_at',
             'user',
             'article',
+            'likes',
             'article_section',
             'end_position',
             'start_position')
@@ -209,6 +213,10 @@ class CommentSerializer(serializers.ModelSerializer):
         CommentHistory.objects.create(comment=instance,
                                       body=validated_data['body'])
         return instance
+
+    """Gets all the comments likes"""
+    def get_likes(self, instance):
+        return instance.votes.likes().count()
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

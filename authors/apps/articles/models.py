@@ -64,7 +64,7 @@ class Article(models.Model):
         'articles.Category',
         to_field='slug',
         on_delete=models.CASCADE,
-        related_name='articles_category',
+        related_name='articles_category'
     )
     author = models.ForeignKey(
         'authentication.User',
@@ -146,6 +146,7 @@ class Comment(models.Model):
         'Article', on_delete=models.CASCADE, to_field="slug", blank=False
     )
     body = models.TextField(max_length=500)
+    votes = GenericRelation(LikeDislike, related_name='comments')
     article_section = models.TextField(blank=True, null=True)
     start_position = models.CharField(max_length=500, blank=True, null=True)
     end_position = models.CharField(max_length=500, blank=True, null=True)
@@ -155,6 +156,7 @@ class CommentHistory(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
     body = models.TextField()
     updated_at = models.DateTimeField(auto_now_add=True)
+    votes = GenericRelation(LikeDislike, related_name='comments')
 
 
 class Tag(models.Model):

@@ -52,3 +52,18 @@ class TestLikeDislikeArticle(BaseTest, TestCategory):
                                            format(dislike_data.data['slug']),
                                            format="json")
         self.assertEqual(second_response.data.get('dislikes'), 0)
+
+    def test_like_a_comment(self):
+        article_response = self.create_an_article(
+            self.new_article,
+            self.registration_data)
+        slug = article_response.data["slug"]
+        comment_response = self.client.post(
+            "/api/articles/{}/comments/".format(str(slug)),
+            self.comment_data, format="json")
+        id = comment_response.data["id"]
+        response = self.client.post('/api/articles/{}/comments/{}/like/'.
+                                    format(str(slug), id),
+                                    format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data.get('likes'), 1)

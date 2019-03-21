@@ -6,10 +6,11 @@ from rest_framework.generics import (
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated)
 from rest_framework.response import Response
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from ..models import (CommentHistory, Comment, Article)
+from ..models import (CommentHistory, Comment, Article, LikeDislike)
 from ..serializers import CommentSerializer, CommentHistorySerializer
 from authors.apps.articles.renderers import CommentHistoryJSONRenderer
 
@@ -92,3 +93,31 @@ class RetrieveUpdateDestroyComment(RetrieveUpdateDestroyAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CommentChoiceView(ListCreateAPIView):
+    """Implements the like and dislike endpoints."""
+    serializer_class = CommentSerializer
+    model = Comment
+    vote_type = None
+    manager = None
+
+    def post(self, request, slug, pk):
+        obj = self.model.objects.get(pk=pk)
+        try:
+            likedislike = LikeDislike.objects.get(
+                content_type=ContentType.objects.get_for_model(obj),
+                object_id=obj.id,
+                user=request.user)
+            if likedislike.vote is not self.vote_type:
+                likedislike.vote = self.vote_type
+                likedislike.save(update_fields=['vote'])
+
+            else:
+                likedislike.delete()
+
+        except LikeDislike.DoesNotExist:
+            obj.votes.create(user=request.user, vote=self.vote_type)
+        serializer = CommentSerializer(obj)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
