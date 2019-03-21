@@ -1,17 +1,14 @@
 from django.urls import path
 
-from .views import (RetrieveUpdateDestroyCategory,
-                    CreateListCategory, ListCreateComment,
-                    CreateArticle, ListTagsView,
-                    ShareArticleView,
-                    ArticleRetrieveUpdate, ChoiceView,
-                    ListBookmarksView, UnBookmarkView,
-                    BookmarkView, FavoriteArticle,
-                    RetrieveUpdateDestroyComment,
-                    UnFavoriteArticle, RatingsView,
-                    CreateReportView,
-                    ListCommentHistoryView,
-                    PublishArticleUpdate)
+from .views.views import (RetrieveUpdateDestroyCategory, CreateListCategory,
+                          ListTagsView, ChoiceView, ListBookmarksView,
+                          UnBookmarkView, BookmarkView,
+                          RatingsView, CreateReportView,)
+from .views.article_view import (CreateArticle, ArticleRetrieveUpdate,
+                                 ShareArticleView, PublishArticleUpdate,
+                                 FavoriteArticle, UnFavoriteArticle)
+from .views.comment_view import (ListCreateComment, ListCommentHistoryView,
+                                 RetrieveUpdateDestroyComment,)
 from .models import LikeDislike, LikeDislikeManager, Article
 
 urlpatterns = [
