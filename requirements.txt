@@ -22,3 +22,16 @@ Pillow==5.4.1
 django-coverage-plugin==1.6.0
 PyYAML==4.2b1
 django-filter==2.1.0
+facebook-sdk==3.1.0
+cachetools==3.1.0
+google-api-python-client==1.7.8
+google-auth==1.6.3
+google-auth-httplib2==0.0.3
+httplib2==0.12.1
+pyasn1==0.4.5
+pyasn1-modules==0.2.4
+rsa==4.0
+future==0.17.1
+oauthlib==3.0.1
+python-twitter==3.5
+requests-oauthlib==1.2.0

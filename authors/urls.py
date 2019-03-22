@@ -24,6 +24,7 @@ schema_view = get_swagger_view(title='Authors Haven')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('authors.apps.authentication.urls', )),
+    path('api/social/', include('authors.apps.social_auth.urls',)),
     path('api/', include('authors.apps.profiles.urls',)),
     path('swagger/', schema_view),
     path('docs/', coreapi_docs),
