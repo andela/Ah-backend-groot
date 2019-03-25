@@ -5,6 +5,7 @@ from .views import (
     VerifyAccount, ResetPasswordView, ChangePasswordView, ListUserView,
 )
 
+
 urlpatterns = [
     path('user/', UserRetrieveUpdateAPIView.as_view()),
     path('users/', RegistrationAPIView.as_view()),

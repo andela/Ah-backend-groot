@@ -19,6 +19,7 @@ from rest_framework_swagger.views import get_swagger_view
 from rest_framework.documentation import include_docs_urls
 from django.views.generic.base import RedirectView
 
+
 coreapi_docs = include_docs_urls(title='Authors Haven')
 schema_view = get_swagger_view(title='Authors Haven')
 urlpatterns = [
@@ -29,5 +30,6 @@ urlpatterns = [
     path('swagger/', schema_view),
     path('docs/', coreapi_docs),
     path('', RedirectView.as_view(url='docs/', permanent=False), name='index'),
-    path('api/', include('authors.apps.articles.urls'))
+    path('api/', include('authors.apps.articles.urls')),
+    path('api/', include('authors.apps.notifications.urls'))
 ]
