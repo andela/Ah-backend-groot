@@ -11,6 +11,7 @@ from authors.apps.social_auth.serializers import (FacebookAuthSerializer,
 class FacebookSocialAuthView(ListCreateAPIView):
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
+    serializer_class = FacebookAuthSerializer
 
     def post(self, request):
         serializer_class = FacebookAuthSerializer
@@ -23,6 +24,7 @@ class FacebookSocialAuthView(ListCreateAPIView):
 class GoogleSocialAuthView(ListCreateAPIView):
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
+    serializer_class = GoogleAuthSerializer
 
     def post(self, request):
         serializer_class = GoogleAuthSerializer
@@ -35,6 +37,7 @@ class GoogleSocialAuthView(ListCreateAPIView):
 class TwitterSocialAuthView(ListCreateAPIView):
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
+    serializer_class = TwitterAuthSerializer
 
     def post(self, request):
         serializer_class = TwitterAuthSerializer

@@ -6,23 +6,12 @@ class SocialTests(APITestCase):
 
     def setUp(self):
 
-        # self.user_with_valid_facebook_token = {
-        #     "user": {
-        #         "auth_token": 'EAAIYGXurtOABAD9f7ZB954eYv1FgvfN3EJ\
-        #             GYuElkvDsj20SrXYTHwigAJP2lirZC4A57ZBL2ZAIPNHknup\
-        #                 oFyf84xliO1U2pvlp0nb3z9tSluZCrviByN8DWKDpcYeEm\
-        #                 2WqJG6ICCawX4m9jiQuVP0J012ZBXZCpAoZD'
-        #     }
-        # }
-
         self.user_with_valid_facebook_token = {
             "user": {
-                "auth_token": 'EAAENeFygSLQBALKPfOg3imGVQrr\
-                    gDZARIULj6WQPzGGRMKO9W5RuHOF3MgLi6wiSsu5\
-                    sxVVuZB9tZB2lkeb4SsbdVuUfVohUNcjni4ulJ\
-                    xEnmZBoxavJ5vPm8Kn6oe3JTG2NjPURnefZAZCp8\
-                    RkMsxfclLjLVeZBBKw5blyZCsvfC8CaMxCAY99tq\
-                    Jh6YHNFPkFMYBb3gFN9lSKzqqQNoYf3'
+                "auth_token": 'EAAIYGXurtOABAD9f7ZB954eYv1FgvfN3EJ\
+                    GYuElkvDsj20SrXYTHwigAJP2lirZC4A57ZBL2ZAIPNHknup\
+                        oFyf84xliO1U2pvlp0nb3z9tSluZCrviByN8DWKDpcYeEm\
+                        2WqJG6ICCawX4m9jiQuVP0J012ZBXZCpAoZD'
             }
         }
 
@@ -36,11 +25,10 @@ class SocialTests(APITestCase):
 
         self.user_with_valid_google_token = {
             "user": {
-                "auth_token": 'EAAENeFygSLQBALKPfOg3imGVQrrgDZARIUL\
-                    j6WQPzGGRMKO9W5RuHOF3MgLi6wiSsu5sxVVuZB9tZB2lke\
-                    b4SsbdVuUfVohUNcjni4ulJxEnmZBoxavJ5vPm8Kn6oe\
-                    3JTG2NjPURnefZAZCp8RkMsxfclLjLVeZBBKw5bly\
-                    ZCsvfC8CaMxCAY99tqJh6YHNFPkFMYBb3gFN9lSKzqqQNoYf'
+                "auth_token": 'EAAIYGXurtOABAD9f7ZB954eYv1FgvfN3EJ\
+                    GYuElkvDsj20SrXYTHwigAJP2lirZC4A57ZBL2ZAIPNHknup\
+                        oFyf84xliO1U2pvlp0nb3z9tSluZCrviByN8DWKDpcYeEm\
+                        2WqJG6ICCawX4m9jiQuVP0J012ZBXZCpAoZD'
             }
         }
 
@@ -89,12 +77,12 @@ class SocialTests(APITestCase):
 
     def test_login_with_valid_facebook_token(self):
         """
-        Test if a user can login with an invalid or expired facebook token
+        Test if a user can login with a valid facebook token
         """
         response = self.client.post(
             "/api/social/auth/facebook/", self.user_with_valid_facebook_token,
             format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_login_with_invalid_twitter_token(self):
         """

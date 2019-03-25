@@ -78,7 +78,6 @@ def validate_username(username):
 
 
 def valid_password(password):
-    pass
     long_password = (len(password) >= 8)
     atleast_number = re.search("[0-9]", password)
     Capital_letters = re.search("[A-Z]", password)

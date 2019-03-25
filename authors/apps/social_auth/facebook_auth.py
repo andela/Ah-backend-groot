@@ -7,7 +7,7 @@ class FacebookAuthHandler:
     """
 
     @staticmethod
-    def validate_facebook_auth_token(auth_token):
+    def validate(auth_token):
         try:
             graph = facebook.GraphAPI(access_token=auth_token)
             profile = graph.request('/me?fields=id,name,email')

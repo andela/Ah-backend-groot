@@ -57,6 +57,13 @@ class BaseTest(APITestCase):
                 "password": "Users@12345"
             }
         }
+        self.third_user_data = {
+            "user": {
+                "username": "user3",
+                "email": "userstest3@gmail.com",
+                "password": "Users@12345"
+            }
+        }
         self.new_article_data = {
             "article": {
                 "title": "believer",
@@ -110,4 +117,24 @@ class BaseTest(APITestCase):
         response = self.client.post('/api/articles/',
                                     article,
                                     format='json')
+        return response
+
+    def subscribe_user_for_email_notifications(self, token):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Bearer ' + token)
+        response = self.client.put("/api/notifications/subscribe/email/")
+        return response
+
+    def subscribe_user_for_in_app_notifications(self, token):
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Bearer ' + token)
+        response = self.client.put("/api/notifications/subscribe/in_app/")
+        return response
+
+    def add_article(self, token, article):
+        new_category = self.add_category()
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Bearer ' + token)
+        article['article']['category'] = new_category.data['slug']
+        response = self.client.post('/api/articles/', article, format='json')
         return response
