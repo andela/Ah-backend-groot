@@ -22,7 +22,7 @@ class TwitterAuthHandler:
         return access_token, access_token_secret
 
     @staticmethod
-    def validate_twitter_auth_tokens(tokens):
+    def validate(tokens):
         """
         Validates twitter auth and returns user info as a dict
         """

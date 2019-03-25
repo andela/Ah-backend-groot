@@ -1,13 +1,18 @@
 from rest_framework import serializers
-from authors.apps.social_auth import facebook_auth, google_auth, twitter_auth
+from authors.apps.social_auth.facebook_auth import FacebookAuthHandler
+from authors.apps.social_auth.twitter_auth import TwitterAuthHandler
+from authors.apps.social_auth.google_auth import GoogleAuthHandler
 from authors.apps.social_auth.register import register_user
 
 
-class AuthSerializer(serializers.Serializer):
+class FacebookAuthSerializer(serializers.Serializer):
+    auth_token = serializers.CharField()
 
-    def validate_token(self, key, user_data):
+    def validate_auth_token(self, auth_token):
+
+        user_data = FacebookAuthHandler.validate(auth_token)
         try:
-            user_data[key]
+            user_data['email']
         except Exception:
             raise serializers.ValidationError(
                 'The token is invalid or expired. Please login again.'
@@ -19,34 +24,42 @@ class AuthSerializer(serializers.Serializer):
         return register_user(email=email, name=name)
 
 
-class FacebookAuthSerializer(AuthSerializer):
+class TwitterAuthSerializer(serializers.Serializer):
     auth_token = serializers.CharField()
 
     def validate_auth_token(self, auth_token):
 
-        user_data = facebook_auth.FacebookAuthHandler\
-            .validate_facebook_auth_token(auth_token)
+        user_info = TwitterAuthHandler.validate(auth_token)
+        try:
+            user_info['email']
+        except Exception:
+            raise serializers.ValidationError(
+                'The token is invalid or expired. Please login again.'
+            )
 
-        return self.validate_token('id', user_data)
+        email = user_info['email']
+        name = user_info['name']
+
+        return register_user(email=email, name=name)
 
 
-class GoogleAuthSerializer(AuthSerializer):
+class GoogleAuthSerializer(serializers.Serializer):
     auth_token = serializers.CharField()
 
     def validate_auth_token(self, auth_token):
 
-        user_data = google_auth.GoogleAuthHandler\
-            .validate_google_auth_token(auth_token)
+        user_data = GoogleAuthHandler.validate(auth_token)
+        try:
+            user_data['email']
+        except Exception:
+            raise serializers.ValidationError(
+                'The token is invalid or expired. Please login again.'
+            )
 
-        return self.validate_token('sub', user_data)
+        email = user_data['email']
+        name = user_data['name']
+
+        return register_user(email=email, name=name)
 
 
-class TwitterAuthSerializer(AuthSerializer):
-    auth_token = serializers.CharField()
 
-    def validate_auth_token(self, auth_token):
-
-        user_info = twitter_auth.TwitterAuthHandler\
-            .validate_twitter_auth_tokens(auth_token)
-
-        return self.validate_token('id_str', user_info)
