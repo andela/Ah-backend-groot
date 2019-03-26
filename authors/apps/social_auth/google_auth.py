@@ -6,7 +6,7 @@ class GoogleAuthHandler:
     """Class to handle Google user info"""
 
     @staticmethod
-    def validate_google_auth_token(auth_token):
+    def validate(auth_token):
         """
         Gets and validates Google the user info from the auth token
         """

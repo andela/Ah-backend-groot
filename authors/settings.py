@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'authors.apps.notifications',
 
     'django_filters',
-    
+
 ]
 
 MIDDLEWARE = [
@@ -158,6 +158,7 @@ WORD_LENGTH = 5
 # Social
 TWITTER_APP_CONSUMER_API_KEY = os.environ.get('TWITTER_APP_CONSUMER_API_KEY')
 TWITTER_APP_CONSUMER_API_SECRET_KEY = os.environ.get('TWITTER_APP_CONSUMER_API_SECRET_KEY')
+SOCIAL_PASSWORD = os.environ.get('SOCIAL_PASSWORD')
 
 # Media (images)
 MEDIA_URL = '/media/'
