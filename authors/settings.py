@@ -117,6 +117,7 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_WHITELIST = (
     '0.0.0.0:4000',
     'localhost:4000',
+    'https://ah-backend-groot.herokuapp.com',
 )
 
 AUTH_USER_MODEL = 'authentication.User'
