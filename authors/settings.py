@@ -118,6 +118,7 @@ CORS_ORIGIN_WHITELIST = (
     '0.0.0.0:4000',
     'localhost:4000',
     'https://ah-backend-groot.herokuapp.com',
+    'http://localhost:8080',
 )
 
 AUTH_USER_MODEL = 'authentication.User'
