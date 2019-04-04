@@ -1,6 +1,5 @@
 import twitter
-from authors.settings import (TWITTER_APP_CONSUMER_API_KEY,
-                              TWITTER_APP_CONSUMER_API_SECRET_KEY)
+from decouple import config
 
 
 class TwitterAuthHandler:
@@ -29,8 +28,10 @@ class TwitterAuthHandler:
         access_token_key, access_token_secret = TwitterAuthHandler\
             .split_twitter_auth_tokens(tokens)
         try:
-            consumer_api_key = TWITTER_APP_CONSUMER_API_KEY
-            consumer_api_secret_key = TWITTER_APP_CONSUMER_API_SECRET_KEY
+            consumer_api_key = config('TWITTER_APP_CONSUMER_API_KEY')
+            consumer_api_secret_key = config(
+                'TWITTER_APP_CONSUMER_API_SECRET_KEY'
+            )
 
             api = twitter.Api(
                 consumer_key=consumer_api_key,
@@ -42,4 +43,5 @@ class TwitterAuthHandler:
             user_profile_info = api.VerifyCredentials(include_email=True)
             return user_profile_info.__dict__
         except Exception:
-            return None
+            message = "The token is invalid or expired."
+            return message
