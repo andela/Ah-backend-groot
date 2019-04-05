@@ -20,14 +20,15 @@ from rest_framework import filters
 
 
 class CreateArticle(ListCreateAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (ArticleJSONRenderer,)
     serializer_class = ArticleSerializer
     queryset = Article.objects.all()
     pagination_class = ArticlePagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('tags__tag', 'author__username',
-                     'title', 'body', 'description')
+                     'title', 'body', 'description',
+                     'category__slug')
 
     def create(self, request):
         article = request.data.get('article', {})
@@ -41,7 +42,7 @@ class CreateArticle(ListCreateAPIView):
         serializer.save(author=self.request.user)
 
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = self.queryset.filter(is_published=True)
         tag = self.request.query_params.get('tag', None)
         if tag:
             queryset = queryset.filter(tags__tag=tag)
@@ -55,6 +56,9 @@ class CreateArticle(ListCreateAPIView):
         if favorite_author:
             queryset = queryset.filter(author__username=favorite_author,
                                        favorited=True)
+        category_slug = self.request.query_params.get('category', None)
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
         return queryset
 
 
