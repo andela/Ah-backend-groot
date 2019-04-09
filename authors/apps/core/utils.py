@@ -121,3 +121,38 @@ def send_an_email(receiver_email, body, article_link, sender):
     )
     email.content_subtype = "html"
     email.send(fail_silently=False)
+
+
+def validate_login(data):
+    email = data.get('email', None)
+    password = data.get('password', None)
+
+    if not email or not password:
+        raise serializers.ValidationError({
+            'error':'Email or Password fields can not be empty'
+        })
+    validate_login_email(email)
+    validate_password(password)
+
+    
+
+def validate_login_email(email):
+    if not re.search(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
+        raise serializers.ValidationError(
+            {
+                'error':
+                'The email you provided is invalid'
+
+            }
+        )
+
+def validate_password(password):
+    long_password = (len(password) >= 8)
+    atleast_number = re.search("[0-9]", password)
+    Capital_letters = re.search("[A-Z]", password)
+
+    if (not long_password or not atleast_number or not Capital_letters):
+        raise serializers.ValidationError(
+            {'error': 'Password should contain at'
+             'least 8 characters uppercase, number'})
+
