@@ -13,13 +13,9 @@ def validate_registration(data):
     email = data.get('email', None)
     password = data.get('password', None)
 
-    if not (username or email or password):
-        raise serializers.ValidationError(
-            {
-                'input fields':
-                'All fields are required'
-            }
-        )
+    empty_email(email)
+
+    empty_password(password)
 
     validate_username_isnot_empty(username)
 
@@ -38,11 +34,23 @@ def validate_email(email):
     if not re.search(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
         raise serializers.ValidationError(
             {
-                'Email':
-                'Please enter a valid email address'
+                'error':
+                ['Please enter a valid email address']
 
             }
         )
+
+
+def empty_email(email):
+    if not email:
+        raise serializers.ValidationError(
+            {'error': ['Email field can not be empty']})
+
+
+def empty_password(password):
+    if not password:
+        raise serializers.ValidationError(
+            {'error': ['Password field can not be empty']})
 
 
 def validate_username_length(username):
@@ -84,8 +92,8 @@ def valid_password(password):
 
     if (not long_password or not atleast_number or not Capital_letters):
         raise serializers.ValidationError(
-            {'password': 'Password should contain at'
-             'least 8 characters uppercase, number'})
+            {'error': ['Password should contain at'
+             'least 8 characters uppercase, number']})
 
 
 def send_mail_user(request, serializer):
