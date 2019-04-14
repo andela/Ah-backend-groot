@@ -69,8 +69,8 @@ class LoginSerializer(serializers.Serializer):
         # If no user was found matching this email/password combination then
         # `authenticate` will return `None`. Raise an exception in this case.
         if user is None:
-            response = "Please signup and check for an activation link \
-                 in your email to activate this account"
+            response = "Please signup and check for an activation link in your\
+                 email"
             raise serializers.ValidationError(
                 re.sub(' +', ' ', response)
             )

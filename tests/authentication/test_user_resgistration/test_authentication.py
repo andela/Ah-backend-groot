@@ -77,8 +77,8 @@ class Authentication(APITestCase):
         data = {"user": {"email": "akram@gmail.com", "password":
                          "akrammukasa"}}
         response = self.client.post('/api/users/login/', data, format='json')
-        feedback = "Please signup and check for an activation \
-             link in your email "
+        feedback = "Please signup and check for an activation link in your\
+                 email"
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn(re.sub(' +', ' ', feedback),
                       response.data["errors"]["error"][0])

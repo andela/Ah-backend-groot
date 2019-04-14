@@ -6,15 +6,6 @@ class SocialTests(APITestCase):
 
     def setUp(self):
 
-        self.user_with_valid_facebook_token = {
-            "user": {
-                "auth_token": 'EAAIYGXurtOABAD9f7ZB954eYv1FgvfN3EJ\
-                    GYuElkvDsj20SrXYTHwigAJP2lirZC4A57ZBL2ZAIPNHknup\
-                        oFyf84xliO1U2pvlp0nb3z9tSluZCrviByN8DWKDpcYeEm\
-                        2WqJG6ICCawX4m9jiQuVP0J012ZBXZCpAoZD'
-            }
-        }
-
         self.user_with_valid_twitter_tokens = {
             "user": {
                 "auth_token":
@@ -74,15 +65,6 @@ class SocialTests(APITestCase):
         self.assertIn(
             'The token is invalid or expired. Please login again.',
             str(response.data))
-
-    def test_login_with_valid_facebook_token(self):
-        """
-        Test if a user can login with a valid facebook token
-        """
-        response = self.client.post(
-            "/api/social/auth/facebook/", self.user_with_valid_facebook_token,
-            format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_login_with_invalid_twitter_token(self):
         """
