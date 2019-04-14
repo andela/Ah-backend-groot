@@ -14,7 +14,7 @@ from .serializers import (
     ResetPasswordSerializer
 )
 from ..profiles.serializers import UserListSerializer
-from ..core import utils
+from ..core import registration_utils, login_utils
 import jwt
 from .models import User
 
@@ -27,7 +27,7 @@ class RegistrationAPIView(APIView):
 
     def post(self, request):
         user = request.data.get('user', {})
-        utils.validate_registration(user)
+        registration_utils.validate_registration(user)
 
         # The create serializer, validate serializer, save serializer pattern
         # below is common and you will see it a lot throughout this course and
@@ -35,7 +35,7 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(utils.send_mail_user(request, serializer),
+        return Response(registration_utils.send_mail_user(request, serializer),
                         status=status.HTTP_201_CREATED)
 
 
@@ -46,6 +46,7 @@ class LoginAPIView(APIView):
 
     def post(self, request):
         user = request.data.get('user', {})
+        login_utils.validate_login(user)
 
         # Notice here that we do not call `serializer.save()` like we did for
         # the registration endpoint. This is because we don't actually have

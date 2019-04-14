@@ -13,7 +13,7 @@ from ..pagination import ArticlePagination
 from ..models import (Article, ReadingStats)
 from ..serializers import ArticleSerializer
 from authors.apps.articles.renderers import ArticleJSONRenderer
-from ....apps.core.utils import send_an_email
+from ....apps.core.registration_utils import send_an_email
 from decouple import config
 
 from rest_framework import filters

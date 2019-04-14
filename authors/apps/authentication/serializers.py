@@ -64,13 +64,13 @@ class LoginSerializer(serializers.Serializer):
         # for a user that matches this email/password combination. Notice how
         # we pass `email` as the `username` value. Remember that, in our User
         # model, we set `USERNAME_FIELD` as `email`.
-        user = authenticate(username=email, password=password)
+        user = authenticate(email=email, password=password)
 
         # If no user was found matching this email/password combination then
         # `authenticate` will return `None`. Raise an exception in this case.
         if user is None:
-            response = "Please signup and check for an activation link \
-                 in your email to activate this account"
+            response = "Please signup and check for an activation link in your\
+                 email"
             raise serializers.ValidationError(
                 re.sub(' +', ' ', response)
             )
