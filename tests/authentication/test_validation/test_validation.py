@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
+import re
 
 
 class TestValidation(APITestCase):
@@ -61,7 +62,7 @@ class TestValidation(APITestCase):
         data = response.data
         self.assertEqual(
             data['errors']
-            ['username'], "Please the username should be atleast 4 characters")
+            ['username'], "Username should be atleast 4 characters")
 
     def test_bad_username(self):
         response = self.client.post(
@@ -93,10 +94,12 @@ class TestValidation(APITestCase):
         response = self.client.post(
             '/api/users/', self.user_one_short_password, format='json')
         data = response.data
+        res = "Password should have\
+             atleast 8 characters, an uppercase and a number"
         self.assertEqual(
             data["errors"]
             ["password"],
-            "Password should contain atleast 8 characters uppercase, number")
+            re.sub('  +', ' ', res))
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_password_not_being_alphanumeric(self):
@@ -104,8 +107,10 @@ class TestValidation(APITestCase):
                                     self.user_one_short_password,
                                     format='json')
         data = response.data
+        res = "Password should have\
+             atleast 8 characters, an uppercase and a number"
         self.assertEqual(
             data["errors"]
             ["password"],
-            "Password should contain atleast 8 characters uppercase, number")
+            re.sub('  +', ' ', res))
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

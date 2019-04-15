@@ -50,8 +50,7 @@ def validate_username_length(username):
         raise serializers.ValidationError(
             {
                 'username':
-                'Please the username should be at'
-                'least 4 characters'
+                'Username should be atleast 4 characters'
             }
         )
 
@@ -83,9 +82,10 @@ def valid_password(password):
     Capital_letters = re.search("[A-Z]", password)
 
     if (not long_password or not atleast_number or not Capital_letters):
+        error = "Password should have\
+             atleast 8 characters, an uppercase and a number"
         raise serializers.ValidationError(
-            {'password': 'Password should contain at'
-             'least 8 characters uppercase, number'})
+            {'password': re.sub('  +', ' ', error)})
 
 
 def send_mail_user(request, serializer):
