@@ -27,6 +27,7 @@ class CreateArticle(ListCreateAPIView):
     pagination_class = ArticlePagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('tags__tag', 'author__username',
+                     'author__email',
                      'title', 'body', 'description',
                      'category__slug', 'is_published')
 
@@ -62,6 +63,9 @@ class CreateArticle(ListCreateAPIView):
         published = self.request.query_params.get('is_published', None)
         if published:
             queryset = queryset.filter(is_published=published)
+        email = self.request.query_params.get('email', None)
+        if email:
+            queryset = queryset.filter(author__email=email)
         return queryset
 
 
