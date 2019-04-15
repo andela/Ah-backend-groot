@@ -87,10 +87,7 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 
 class VerifyAccount(GenericAPIView):
-    permission_classes = (AllowAny, )
-    serializer_class = UserSerializer
-
-    def get(self, request, format=None):
+    def get(self, request):
         token = request.query_params.get('token')
         payload = jwt.decode(token, settings.SECRET_KEY)
         email = payload['email']
