@@ -28,7 +28,7 @@ class CreateArticle(ListCreateAPIView):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('tags__tag', 'author__username',
                      'title', 'body', 'description',
-                     'category__slug')
+                     'category__slug', 'is_published')
 
     def create(self, request):
         article = request.data.get('article', {})
@@ -42,7 +42,7 @@ class CreateArticle(ListCreateAPIView):
         serializer.save(author=self.request.user)
 
     def get_queryset(self):
-        queryset = self.queryset.filter(is_published=True)
+        queryset = self.queryset
         tag = self.request.query_params.get('tag', None)
         if tag:
             queryset = queryset.filter(tags__tag=tag)
@@ -59,6 +59,9 @@ class CreateArticle(ListCreateAPIView):
         category_slug = self.request.query_params.get('category', None)
         if category_slug:
             queryset = queryset.filter(category__slug=category_slug)
+        published = self.request.query_params.get('is_published', None)
+        if published:
+            queryset = queryset.filter(is_published=published)
         return queryset
 
 
