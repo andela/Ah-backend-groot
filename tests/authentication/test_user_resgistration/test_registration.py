@@ -39,8 +39,8 @@ class TestRegistration(APITestCase):
         registration_response = self.client.post('/api/users/', data,
                                                  format='json')
         registration_token = registration_response.data['token']
-        self.client.post('/api/users/verify/?token=' + registration_token,
-                         format='json')
+        self.client.get('/api/users/verify/?token=' + registration_token,
+                        format='json')
         login_data = {
             "user": {
                 "email": "userstest@gmail.com",
@@ -111,17 +111,3 @@ class TestRegistration(APITestCase):
         client = APIClient()
         response = client.get("/api/user/", format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_verification_email_is_sent(self):
-        data = {
-            "user": {
-                "username": "user",
-                "email": "users@gmail.com",
-                "password": "Users@2011"
-            }
-        }
-        registration_response = self.client.post('/api/users/',
-                                                 data, format='json')
-        token = registration_response.data["token"]
-        response = self.client.post('/api/users/verify/?token=' + token)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)

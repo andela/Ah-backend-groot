@@ -65,7 +65,7 @@ class Authentication(APITestCase):
                 "password": "aKrammukasa1234"}
                 }
         response = self.client.post('/api/users/', data, format='json')
-        self.client.post('/api/users/verify/?token=' + response.data['token'])
+        self.client.get('/api/users/verify/?token=' + response.data['token'])
         login_data = {"user": {"email": "akram6@gmail.com", "password":
                                "aKrammukasa1234"}}
         login_response = self.client.post(
@@ -92,7 +92,7 @@ class Authentication(APITestCase):
         response = self.client.post('/api/users/', data, format='json')
         login_data = {"user": {"email": "akram@gmail.com", "password":
                                "aKrammukasa1234"}}
-        self.client.post('/api/users/verify/?token=' + response.data['token'])
+        self.client.get('/api/users/verify/?token=' + response.data['token'])
 
         login_response = self.client.post('/api/users/login/', login_data,
                                           format='json')
@@ -111,7 +111,7 @@ class Authentication(APITestCase):
         login_data = {"user": {"email": "akram@gmail.com", "password":
                                "aKrammukasa1234"}}
 
-        self.client.post('/api/users/verify/?token=' + response.data['token'])
+        self.client.get('/api/users/verify/?token=' + response.data['token'])
         login_response = self.client.post('/api/users/login/', login_data,
                                           format='json')
         token = login_response.data["token"]

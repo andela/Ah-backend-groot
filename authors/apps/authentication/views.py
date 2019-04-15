@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.http import HttpResponseRedirect
 from rest_framework import status
 from rest_framework.generics import (
     RetrieveUpdateAPIView,
@@ -89,18 +90,14 @@ class VerifyAccount(GenericAPIView):
     permission_classes = (AllowAny, )
     serializer_class = UserSerializer
 
-    def post(self, request, format=None):
+    def get(self, request, format=None):
         token = request.query_params.get('token')
         payload = jwt.decode(token, settings.SECRET_KEY)
         email = payload['email']
         user = User.objects.filter(email=email)
         user.update(is_active=True)
-        data = {
-            'message': 'Account successfully verified, your free to  now login'
-        }
-        return Response(
-            data,
-            status=status.HTTP_200_OK)
+        return \
+            HttpResponseRedirect('https://ah-front-end-groot.herokuapp.com/')
 
 
 class ResetPasswordView(RetrieveUpdateAPIView):

@@ -61,7 +61,7 @@ class PasswordResetTests(APITestCase):
         registration_response = self.client.post("/api/users/", user1,
                                                  format="json")
         token = registration_response.data["token"]
-        self.client.post('/api/users/verify/?token=' + token)
+        self.client.get('/api/users/verify/?token=' + token)
         response = self.client.get("/api/password-reset/{}/".format(token))
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)

@@ -90,7 +90,7 @@ class BaseTest(APITestCase):
         response = self.client.post('/api/users/',
                                     data,
                                     format='json')
-        self.client.post(
+        self.client.get(
             '/api/users/verify/?token=' + response.data["token"])
         login_data = {
             "user": {
