@@ -48,12 +48,18 @@ class ListCreateComment(ListCreateAPIView):
         return comment
 
     def create(self, request, *args, **kwargs):
-        comment = self.highlight_comment(request)
+        comment = request.data.get('comment', {})
         serializer = self.get_serializer(data=comment)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        self.perform_create(serializer)
         return Response(serializer.data,
                         status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user,
+                        article=Article.objects.get(
+                            slug=self.kwargs.get('slug'))
+                        )
 
 
 class ListCommentHistoryView(ListAPIView):
