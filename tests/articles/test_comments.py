@@ -93,7 +93,7 @@ class TestComment(BaseTest, TestCategory):
             "/api/articles/{}/comments/{}/history/".format(str(slug),
                                                            comment_id),
             self.change_comment, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_can_not_get_edit_history_when_comment_is_not_edited(self):
         article_response = self.create_an_article(
