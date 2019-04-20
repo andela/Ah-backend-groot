@@ -18,7 +18,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=255, blank=True)
     bio = models.CharField(max_length=255, blank=True)
-    image = models.ImageField(blank=True)
+    image = models.URLField(blank=True)
     follows = models.ManyToManyField(
         'self',
         related_name='followed_by',
