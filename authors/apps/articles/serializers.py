@@ -200,11 +200,6 @@ class CommentSerializer(serializers.ModelSerializer):
             'start_position')
         read_only_fields = ('article', 'user',)
 
-    def update(self, instance, validated_data):
-        CommentHistory.objects.create(comment=instance,
-                                      body=validated_data['body'])
-        return instance
-
     """Gets all the comments likes"""
     def get_likes(self, instance):
         return instance.votes.likes().count()
