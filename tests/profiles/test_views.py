@@ -47,6 +47,8 @@ class TestProfile(BaseTest):
         super().register_follow_user()
         token1 = response1.data["token"]
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token1)
+        self.client.post("/api/profiles/user1/follow/",
+                         format="json")
         response = self.client.delete("/api/profiles/user1/follow/",
                                       format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
