@@ -85,21 +85,24 @@ class FollowProfileView(CreateAPIView, DestroyAPIView):
     def delete(self, request, username=None):
         profile = self.get_object()
         follower = self.request.user.profile
-        follower.unfollow(profile)
         if follower.pk is profile.pk:
             raise serializers.ValidationError('You can not unfollow yourself')
-        if not profile.is_followed_by(follower):
-            raise serializers.ValidationError('You already unfollowed this user')
-        follower_count = follower.follower_count
-        following_count = profile.following_count
-        follower.follower_count = follower_count - 1
-        profile.following_count = following_count - 1
-        follower.save()
-        profile.save()
-        serializer = self.serializer_class(profile, context={
-            'request': request
-        })
-        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+        if profile.is_followed_by(follower):
+            follower.unfollow(profile)
+            follower_count = follower.follower_count
+            following_count = profile.following_count
+            follower.follower_count = follower_count - 1
+            profile.following_count = following_count - 1
+            follower.save()
+            profile.save()
+            serializer = self.serializer_class(profile, context={
+                'request': request
+            })
+            return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+        else:
+            print("Already unfollow")
+            raise serializers.ValidationError(
+                'You already unfollowed this user')
 
     def post(self, request, username=None):
         profile = self.get_object()
