@@ -86,6 +86,10 @@ class FollowProfileView(CreateAPIView, DestroyAPIView):
         profile = self.get_object()
         follower = self.request.user.profile
         follower.unfollow(profile)
+        if follower.pk is profile.pk:
+            raise serializers.ValidationError('You can not unfollow yourself')
+        if not profile.is_followed_by(follower):
+            raise serializers.ValidationError('You already unfollowed this user')
         follower_count = follower.follower_count
         following_count = profile.following_count
         follower.follower_count = follower_count - 1
