@@ -30,7 +30,7 @@ google-auth-httplib2==0.0.3
 httplib2==0.12.1
 pyasn1==0.4.5
 pyasn1-modules==0.2.4
-rsa==4.0
+rsa==4.1
 future==0.17.1
 oauthlib==3.0.1
 python-twitter==3.5
