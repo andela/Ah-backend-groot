@@ -10,7 +10,7 @@ psycopg2==2.7.7
 python-decouple==3.1
 djangorestframework==3.8.2
 flake8==3.7.7
-PyJWT==1.7.1
+PyJWT==2.4.0
 pylint==2.2.2
 requests==2.21.0
 simplejson==3.16.0
